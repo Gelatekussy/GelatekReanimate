@@ -1,4 +1,4 @@
-local Character = script.Parent
+local Character = game.Players.LocalPlayer.Character
 local Humanoid = Character:WaitForChild("Humanoid")
 local pose = "Standing"
 
