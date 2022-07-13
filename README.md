@@ -32,7 +32,7 @@ https://www.roblox.com/catalog/48474313/Red-Roblox-Cap
 
 R15 Bullet Hat (Optional And Recommended if Bullet is true (PermamentDeath Doesn't matter)
 https://www.roblox.com/catalog/5973840187/Left-Sniper-Shoulder
-``'
+```
 
 # Credits:
 - Gelatek: Founder, Main Coder
