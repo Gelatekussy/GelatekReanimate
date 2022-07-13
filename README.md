@@ -27,9 +27,10 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekR
 
 # FAQ:
 ```
--- R6 Bullet Hat (Optional And Recommended if BulletEnabled is true and PermamentDeath is false)
+R6 Bullet Hat (Optional And Recommended if BulletEnabled is true and PermamentDeath is false)
 https://www.roblox.com/catalog/48474313/Red-Roblox-Cap
--- R15 Bullet Hat (Optional And Recommended if Bullet is true (PermamentDeath Doesn't matter)
+
+R15 Bullet Hat (Optional And Recommended if Bullet is true (PermamentDeath Doesn't matter)
 https://www.roblox.com/catalog/5973840187/Left-Sniper-Shoulder
 ``'
 
