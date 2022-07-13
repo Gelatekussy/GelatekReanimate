@@ -12,6 +12,27 @@ This is the one of the best reanimate I ever made, it's stablest and less jitter
 - Delayless
 - (BETA) Custom Jitterless
 
+# Code:
+```lua
+getgenv().GelatekReanimateConfig = {
+	["AnimationsDisabled"] = false,
+	["R15ToR6"] = true,
+	["PermanentDeath"] = false,
+	["TorsoFling"] = false, -- R15 Torso Fling is beta! expect instability
+	["BulletEnabled"] = false,
+	["LoadLibrary"] = false
+}
+loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Main.lua"))()
+```
+
+# FAQ:
+```
+-- R6 Bullet Hat (Optional And Recommended if BulletEnabled is true and PermamentDeath is false)
+https://www.roblox.com/catalog/48474313/Red-Roblox-Cap
+-- R15 Bullet Hat (Optional And Recommended if Bullet is true (PermamentDeath Doesn't matter)
+https://www.roblox.com/catalog/5973840187/Left-Sniper-Shoulder
+``'
+
 # Credits:
 - Gelatek: Founder, Main Coder
 - ProductionTakeOne: Properties, Optimizations, Help and stuff.
