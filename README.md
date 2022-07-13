@@ -1,4 +1,4 @@
-![Intro](https://user-images.githubusercontent.com/76650942/178831019-819f6dd5-9a22-4d6c-8495-6b4ab1df57af.png)
+![Default](https://user-images.githubusercontent.com/76650942/178831019-819f6dd5-9a22-4d6c-8495-6b4ab1df57af.png)
 
 # Gelatek Reanimate!
 This is the one of the best reanimate I ever made, it's stablest and less jittery from my other reanimations! It Has:
