@@ -10,8 +10,6 @@ if not getgenv().GelatekReanimateConfig then
 	}
 end
 ------------------ Start
-
-
 do
 	if not game:IsLoaded() then
 		error("Gelatek Reanimate - Game Not Loaded!")
@@ -65,6 +63,9 @@ end
 local HiddenProps = sethiddenproperty or set_hidden_property or function() end 
 	
 local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
+
+local SetScript = setscriptable or function() end
+
 
 local IsPlayerDead, Events, PlayerRigType, HatReplicaR6, BulletR6, HatReplicaR15, BulletR15, Velocity, PartFling = false, {}, "", nil, nil, nil, nil, Vector3.new(0,25.05,0), PartFling
 --// SimpleAPI
@@ -172,8 +173,6 @@ local Core = {
 	end,
 	Network = function()
 		-- thanks phere for synapse net
-		settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
-		settings().Physics.AllowSleep = false
 		game.Players.LocalPlayer.ReplicationFocus = workspace
 		game.Players.LocalPlayer.MaximumSimulationRadius = 9e8
 		if syn then
@@ -278,11 +277,40 @@ local Core = {
 	end
 }
 
+do 
+	settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
+	settings().Physics.AllowSleep = false
+	settings().Physics.ForceCSGv2 = false
+	settings().Physics.DisableCSGv2 = true
+	settings().Physics.UseCSGv2 = false
+	settings().Physics.ThrottleAdjustTime = math.huge
+	workspace.FallenPartsDestroyHeight = -math.huge
+	game.Players.LocalPlayer.ReplicationFocus = workspace
+	
+	SetScript(workspace,  "PhysicsSteppingMethod", true)
+	HiddenProps(workspace,"PhysicsSteppingMethod",Enum.PhysicsSteppingMethod.Fixed)
+	
+	SetScript(workspace,  "PhysicsSimulationRateReplicator", true)
+	HiddenProps(workspace,"PhysicsSimulationRateReplicator",Enum.PhysicsSimulationRate.Fixed240Hz)
+end
+
 --// Get Variables
 local Player = game:GetService("Players").LocalPlayer
 local Character = Player["Character"]
 local Humanoid = Character:FindFirstChildOfClass("Humanoid")
 Character.Archivable = true
+
+for i,v in ipairs(Character:GetDescendants()) do
+	if v:IsA("Tool") then
+		v:Destroy()
+	end
+end
+for i,v in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+	if v:IsA("Tool") then
+		v:Destroy()
+	end
+end
+
 
 local HatsFolder = Instance.new("Folder") -- Hats Folder (For Stop Script)
 HatsFolder.Name = "FakeHats"
@@ -295,21 +323,21 @@ end
 PlayerRigType = Core.GetRig(Humanoid)
 
 if PlayerRigType == "R6" then
-Core.CreateDummy("GelatekReanimate", workspace) -- Dummy Creation
+	Core.CreateDummy("GelatekReanimate", workspace) -- Dummy Creation
 elseif PlayerRigType == "R15" and R15ToR6 == true then
-Core.CreateDummy("GelatekReanimate", workspace) -- Dummy Creation
+	Core.CreateDummy("GelatekReanimate", workspace) -- Dummy Creation
 elseif PlayerRigType == "R15" and R15ToR6 == false then
-local Dummy = Character:Clone() 
-Dummy.Name = "GelatekReanimate"
-for i,v in pairs(Dummy:GetDescendants()) do
-	if v:IsA("BasePart") or v:IsA("Decal") then
-		v.Transparency = 1
+	local Dummy = Character:Clone() 
+	Dummy.Name = "GelatekReanimate"
+	for i,v in pairs(Dummy:GetDescendants()) do
+		if v:IsA("BasePart") or v:IsA("Decal") then
+			v.Transparency = 1
+		end
+		if v:IsA("Accessory") then
+			v:Destroy()
+		end
 	end
-	if v:IsA("Accessory") then
-		v:Destroy()
-	end
-end
-Dummy.Parent = workspace
+	Dummy.Parent = workspace
 
 end
 Core.DisableScripts(Character)
@@ -344,7 +372,7 @@ table.insert(Events, Character.ChildRemoved:Connect(function() -- Character Remo
 	CharDescendants = Character:GetDescendants()
 end))
 
-table.insert(Events, Dummy.ChildAdded:Connect(function() -- Clone Added
+table.insert(Events, Dummy.ChildAdded:Connect(function(Tool) -- Clone Added
 	DummyChildren = Dummy:GetChildren()
 	DummyDescendants = Dummy:GetDescendants()
 end))
