@@ -24,7 +24,7 @@ getgenv().GelatekReanimateConfig = {
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Main.lua"))()
 ```
-(PS. If you want to test the bullet, go to Addons/BulletCode.lua)
+(PS. If you want to test the bullet, go to Addons/BulletScript.lua)
 
 
 # FAQ:
