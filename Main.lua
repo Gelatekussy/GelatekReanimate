@@ -178,10 +178,6 @@ local Core = {
 		if syn then
 			if identifyexecutor then
 				SimulationRadius(9e8)	
-			else
-				-- no need to change stuff since its only for synapse
-				setscriptable(game.Players.LocalPlayer, "SimulationRadius", true)
-				sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", 9e8)
 			end
 		else
 			SimulationRadius(9e8)
