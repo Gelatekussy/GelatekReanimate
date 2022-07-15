@@ -54,7 +54,7 @@ if IsTorsoFling == true and IsBulletEnabled == true then
 	IsTorsoFling = false
 	warn("TorsoFling and BulletEnabled are both true! Disabling TorsoFling")
 end
-if R15ToR6 == false then
+if R15ToR6 == false and game.Players.LocalPlayer.Character.Humanoid.RigType == Enum.HumanoidRigType.R15 then
 	IsBulletEnabled = false
 	IsTorsoFling = false
 	warn("R15ToR6 Is disabled! Disabling TorsoFling/BulletEnabled")
