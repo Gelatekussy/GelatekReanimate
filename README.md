@@ -27,6 +27,18 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekR
 
 # FAQ:
 ```
+- Can I use this reanimate?
+	- Answer: Yes, The Credits are coded in so you don't have to credit by yourself!
+
+- Can I use the jitterless/delayless method?
+	- Answer: Sure but credit MyWorld (He told me how is it made) and Me (I coded it)
+	
+- Will there be align reanima-
+	- no.
+```
+
+# Hats:
+```
 R6 Bullet Hat (Optional And Recommended if BulletEnabled is true and PermamentDeath is false)
 https://www.roblox.com/catalog/48474313/Red-Roblox-Cap
 
