@@ -447,7 +447,7 @@ end)
 --
 local Off = 1
 local Off2 = 0.07
-task.spawn(function()
+coroutine.wrap(function()
 	while wait(0.05) do
 		if IsPlayerDead then
 			break
@@ -455,7 +455,7 @@ task.spawn(function()
 		Off2 = Off2 * -1
 		Off = Off * -1 
 	end
-end)
+end)()
 -- Velocity/Main Part
 Core.CreateSignal("RunService", "Heartbeat", function()
 	Velocity = Vector3.new(Dummy["HumanoidRootPart"].AssemblyLinearVelocity.X * 5, 25.05, Dummy["HumanoidRootPart"].AssemblyLinearVelocity.Z * 5)
