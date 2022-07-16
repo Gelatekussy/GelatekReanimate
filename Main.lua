@@ -452,8 +452,8 @@ task.spawn(function()
 		if IsPlayerDead then
 			break
 		end
-		Off2 *= -1
-		Off *= -1 
+		Off2 = Off2 * -1
+		Off = Off * -1 
 	end
 end)
 -- Velocity/Main Part
