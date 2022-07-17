@@ -303,18 +303,19 @@ Core.CreateSignal(Events, "RunService", "Heartbeat", function()
 		end
 		
 		if PlayerRigType == "R6" then
-            if IsPermaDeath == true then -- Ugly Code But Works
+			if IsPermaDeath == true then -- Ugly Code But Works
 				Core.Align(Character["Left Arm"], Dummy["Left Arm"])
-            	if IsBulletEnabled == true then
-					if getgenv().PartDisconnecting == false then
-						Core.Align(BulletR6, Dummy["HumanoidRootPart"], CFrame.new(0,Off,0))
+				if IsBulletEnabled == true then
+					if getgenv().PartDisconnecting == false then 
+						Core.Align(BulletR6, Dummy["HumanoidRootPart"], CFrame.new(0,Off,0)) 
 					end
-				else
+				elseif IsBulletEnabled == false then
 					Core.Align(Character["HumanoidRootPart"], Dummy["HumanoidRootPart"], CFrame.new(0,Off,0))	
 				end
-            else
+			elseif IsPermaDeath == false then 
 				Core.Align(Character["HumanoidRootPart"], Dummy["HumanoidRootPart"], CFrame.new(0,Off,0))	
 			end
+		
 			if IsBulletEnabled == true and IsPermaDeath == false then
 				if getgenv().PartDisconnecting == false then
 					Core.Align(BulletR6, Dummy["Left Arm"])
@@ -325,7 +326,6 @@ Core.CreateSignal(Events, "RunService", "Heartbeat", function()
 			else
 				Core.Align(Character["Left Arm"], Dummy["Left Arm"])
 			end
-			
 			Core.Align(Character["Torso"], Dummy["Torso"])
 			Core.Align(Character["Right Arm"], Dummy["Right Arm"])
 			Core.Align(Character["Right Leg"], Dummy["Right Leg"])
@@ -333,12 +333,10 @@ Core.CreateSignal(Events, "RunService", "Heartbeat", function()
 		else
 			if R15ToR6 == true then
 				Character.PrimaryPart = Character["UpperTorso"] -- Net Fix
-				Character["HumanoidRootPart"].Transparency = 0
 				Core.Align(Character["UpperTorso"], Dummy["Torso"], Core.Offsets.UpperTorso)
 				Core.Align(Character["HumanoidRootPart"], Character["UpperTorso"], CFrame.new(0,Off2,0))
 				Core.Align(Character["LowerTorso"], Dummy["Torso"], Core.Offsets.LowerTorso)
-				
-				if IsBulletEnabled == true then -- Ugly Code But Works
+				if IsBulletEnabled == true then
 					if getgenv().PartDisconnecting == false then
 						Core.Align(BulletR15, Dummy["Left Arm"])
 					end
@@ -348,7 +346,6 @@ Core.CreateSignal(Events, "RunService", "Heartbeat", function()
 				else
 					Core.Align(Character["LeftUpperArm"], Dummy["Left Arm"], Core.Offsets.UpperArm)
 				end
-				
 				Core.Align(Character["RightUpperArm"], Dummy["Right Arm"], Core.Offsets.UpperArm)
 				Core.Align(Character["RightLowerArm"], Dummy["Right Arm"], Core.Offsets.LowerArm)
 				Core.Align(Character["RightHand"], Dummy["Right Arm"], Core.Offsets.Hand)
@@ -409,18 +406,18 @@ end))
 -- Animations
 if AreAnimationsDisabled ~= true then
 	if PlayerRigType == "R6" then
-	Core.Animations()
+		Core.Animations()
 	elseif PlayerRigType == "R15" and R15ToR6 == true then
-	Core.Animations()
+		Core.Animations()
 	elseif PlayerRigType == "R15" and R15ToR6 == false then
-	local Anim = Character.Animate:Clone()
-	Dummy.Animate:Destroy()
-	Anim.Parent = Dummy
-	Anim.Disabled = false
+		local Anim = Character.Animate:Clone()
+		Dummy.Animate:Destroy()
+		Anim.Parent = Dummy
+		Anim.Disabled = false
 	end
 end
 if IsLoadLibraryEnabled == true then
 	Core.LoadLibrary()
 end
 Core.Notification("Loaded! By: Gelatek \n (Thanks: CenteredSniper, Mizt, MW)")
-print("Gelatek Reanimate - Loaded! Version: 1.1.0")
+print("Gelatek Reanimate - Loaded! Version: 1.1.1")
