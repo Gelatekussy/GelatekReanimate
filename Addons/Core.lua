@@ -125,7 +125,7 @@ local Core = {
 		end
 		Dummy.Parent = Parent or workspace
 	end,
-	Resetting = function(Model1,Model2)
+	Resetting = function(Table,Model1,Model2)
 		Model1.Parent = workspace
 		game.Players.LocalPlayer.Character = workspace[Model1.Name]
 		Model2:Destroy()
@@ -135,7 +135,7 @@ local Core = {
 		if getgenv().PartDisconnecting then
 			getgenv().PartDisconnecting = nil
 		end
-		for i,v in pairs(Events) do
+		for i,v in pairs(Table) do
 			v:Disconnect()
 		end
 		for i,v in pairs(getgenv().TableOfEvents) do
