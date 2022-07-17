@@ -126,7 +126,7 @@ local Core = {
 		})
 	end,
 	Align = function(Part0,Part1,OffSetPos,OffsetAngles)
-		local network = isnetworkowner or is_network_owner or function() return true end
+		local network = isnetworkowner or is_network_owner or function(part) return part.ReceiveAge == 0 end
 		local Pos = OffSetPos or CFrame.new(0,0,0)
 		local Angles = OffsetAngles or CFrame.Angles(0,0,0)
 		if network(Part0) == true then
@@ -172,7 +172,6 @@ local Core = {
 		end
 	end,
 	Network = function()
-		-- thanks phere for synapse net
 		game.Players.LocalPlayer.ReplicationFocus = workspace
 		game.Players.LocalPlayer.MaximumSimulationRadius = 9e8
 		if syn then
