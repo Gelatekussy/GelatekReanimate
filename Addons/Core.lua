@@ -145,6 +145,8 @@ local Core = {
 		pcall(function()
 			if getgenv().FrostwareConfig then
 				getgenv().FrostwareConfig["AnimationPlaying"] = false
+				getgenv().FrostwareConfig["ScriptStopped"] = true
+				task.wait()
 				getgenv().FrostwareConfig["ScriptStopped"] = false
 			end
 		end)
