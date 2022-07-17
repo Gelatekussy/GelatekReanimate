@@ -141,6 +141,13 @@ local Core = {
 		for i,v in pairs(getgenv().TableOfEvents) do
 			v:Disconnect()
 		end
+		
+		pcall(function()
+			if getgenv().FrostwareConfig then
+				getgenv().FrostwareConfig["AnimationPlaying"] = false
+				getgenv().FrostwareConfig["ScriptStopped"] = false
+			end
+		end)
 		if workspace:FindFirstChild("ScriptCheck") then
 			workspace:FindFirstChild("ScriptCheck"):Destroy()
 		end
