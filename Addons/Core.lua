@@ -141,6 +141,11 @@ local Core = {
 		for i,v in pairs(getgenv().TableOfEvents) do
 			v:Disconnect()
 		end
+		if getgenv().FrostwareConfig then
+			for i,v in pairs(getgenv().FrostwareConfig.TableOfEvents) do
+				v:Disconnect()
+			end
+		end
 		if workspace:FindFirstChild("ScriptCheck") then
 			workspace:FindFirstChild("ScriptCheck"):Destroy()
 		end
