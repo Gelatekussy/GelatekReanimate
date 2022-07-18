@@ -15,14 +15,16 @@ local HiddenProps = sethiddenproperty or set_hidden_property or function() end
 local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
 
 local SetScript = setscriptable or function() end
+	
+--// Core
+local Core = loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Addons/Core.lua"))()
+
 
 local IsPlayerDead, Events, PlayerRigType, HatReplicaR6, BulletR6, HatReplicaR15, BulletR15, Velocity, PartFling = false, {}, "", nil, nil, nil, nil, Vector3.new(0,25.05,0), PartFling
 
 if not getgenv().TableOfEvents then
 	getgenv().TableOfEvents = {}
 end
---// Core 
-local Core = loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Addons/Core.lua"))()
 
 do
 	if not game:IsLoaded() then
@@ -87,13 +89,16 @@ do
 	settings().Physics.DisableCSGv2 = true
 	settings().Physics.UseCSGv2 = false
 	settings().Physics.ThrottleAdjustTime = math.huge
-	workspace.FallenPartsDestroyHeight = -math.huge
 	game.Players.LocalPlayer.ReplicationFocus = workspace
 
 	HiddenProps(workspace,"PhysicsSteppingMethod",Enum.PhysicsSteppingMethod.Fixed)
 	HiddenProps(workspace,"PhysicsSimulationRateReplicator",Enum.PhysicsSimulationRate.Fixed240Hz)
 end
 
+if setfpscap then
+	setfpscap(60.1)
+	task.wait(0.05)
+end
 --// Get Variables
 local Player = game:GetService("Players").LocalPlayer
 local Character = Player["Character"]
@@ -268,7 +273,7 @@ coroutine.wrap(function()
 end)()
 -- Velocity/Main Part
 Core.CreateSignal(Events, "RunService", "Heartbeat", function()
-	Velocity = Vector3.new(Dummy["HumanoidRootPart"].AssemblyLinearVelocity.X * 5, 25.05, Dummy["HumanoidRootPart"].AssemblyLinearVelocity.Z * 5)
+	Velocity = Vector3.new(Dummy["HumanoidRootPart"].AssemblyLinearVelocity.X * 5, 25.32, Dummy["HumanoidRootPart"].AssemblyLinearVelocity.Z * 5)
 	for i,v in pairs(CharDescendants) do
 		if v:IsA("BasePart") then
 			if v and v.Parent and v.Name ~= PartFling then -- Velocity
@@ -420,4 +425,4 @@ if IsLoadLibraryEnabled == true then
 	Core.LoadLibrary()
 end
 Core.Notification("Loaded! By: Gelatek \n (Thanks: CenteredSniper, Mizt, MW)")
-print("Gelatek Reanimate - Loaded! Version: 1.1.1")
+print("Gelatek Reanimate - Loaded! Version: 1.1.2")
