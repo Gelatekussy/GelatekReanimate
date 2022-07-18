@@ -1,9 +1,3 @@
-local HiddenProps = sethiddenproperty or set_hidden_property or function() end 
-	
-local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
-
-local SetScript = setscriptable or function() end
-
 local Core = {
 	Offsets = {
 		["UpperTorso"] = CFrame.new(0,0.194,0),
@@ -101,15 +95,8 @@ local Core = {
 		end
 	end,
 	Network = function()
-		game.Players.LocalPlayer.ReplicationFocus = workspace
-		game.Players.LocalPlayer.MaximumSimulationRadius = 9e8
-		if syn then
-			if identifyexecutor then
-				SimulationRadius(9e8)	
-			end
-		else
-			SimulationRadius(9e8)
-		end
+		HiddenProps(game.Players.LocalPlayer, "MaximumSimulationRadius", 2763+1e5)
+		HiddenProps(game.Players.LocalPlayer, "SimulationRadius", 2763+1e5)
 	end,
 	CreateSignal = function(Table,DataModel,Name,Callback)
 		local Service = game:GetService(DataModel)
