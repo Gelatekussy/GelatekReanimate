@@ -10,7 +10,7 @@ This is the one of the best reanimate I ever made, it's stablest and less jitter
 - Torso Fling
 - Bullet Reanimate
 - Delayless
-- (BETA) Custom Jitterless
+- Low Jitter
 
 # Code:
 ```lua
@@ -32,7 +32,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekR
 - Can I use this reanimate?
 	- Answer: Yes, The Credits are coded in so you don't have to credit by yourself!
 
-- Can I use the jitterless/delayless method?
+- Can I use the delayless method?
 	- Answer: Sure but credit MyWorld (He told me how is it made) and Me (I coded it)
 	
 - Will there be align reanima-
