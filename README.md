@@ -18,7 +18,7 @@ getgenv().GelatekReanimateConfig = {
 	["AnimationsDisabled"] = false,
 	["R15ToR6"] = true,
 	["PermanentDeath"] = false,
-	["TorsoFling"] = false, -- R15 Torso Fling is beta! expect instability
+	["TorsoFling"] = false,
 	["BulletEnabled"] = false,
 	["LoadLibrary"] = false
 }
