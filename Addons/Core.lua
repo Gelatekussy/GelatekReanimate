@@ -1,3 +1,9 @@
+local HiddenProps = sethiddenproperty or set_hidden_property or function() end 
+	
+local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
+
+local SetScript = setscriptable or function() end
+
 local Core = {
 	Offsets = {
 		["UpperTorso"] = CFrame.new(0,0.194,0),
