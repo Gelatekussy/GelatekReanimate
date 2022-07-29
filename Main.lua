@@ -1,88 +1,294 @@
--- Rep: https://github.com/StrokeThePea/GelatekReanimate
-if not getgenv().GelatekReanimateConfig then
-	getgenv().GelatekReanimateConfig = {
-		["AnimationsDisabled"] = false,
-		["R15ToR6"] = false,
-		["PermanentDeath"] = false,
-		["TorsoFling"] = false,
-		["BulletEnabled"] = false,
-		["LoadLibrary"] = false
-	}
-end
---// Variables
+
+
+local Player = game:GetService("Players").LocalPlayer
 local HiddenProps = sethiddenproperty or set_hidden_property or function() end 
-	
 local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
-
 local SetScript = setscriptable or function() end
-	
---// Core
-local Core = loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Addons/Core.lua"))()
-
-
-local IsPlayerDead, Events, PlayerRigType, HatReplicaR6, BulletR6, HatReplicaR15, BulletR15, Velocity, PartFling = false, {}, "", nil, nil, nil, nil, Vector3.new(0,25.05,0), PartFling
-
+local IsPlayerDead = false
+local Events = {}
+local PlayerRigType = ""
+local HatReplicaR6, BulletR6 = nil
+local HatReplicaR15, BulletR15 = nil
+local Velocity = Vector3.new(25.05,0,0)
+local PartFling = nil
+local Offset = 1
+local OffsetR15 = 0.05
+local R6TorsoVel = Vector3.new(1000,1000,1000)
 if not getgenv().TableOfEvents then
 	getgenv().TableOfEvents = {}
 end
 
-do
+--// Configs
+
+do --// Checking
 	if not game:IsLoaded() then
-		Core.Notification("Game Did not load yet. Please Wait.")
-		return
+		game.Loaded:Wait()
 	end
 	if workspace:FindFirstChild("GelatekReanimate") then
-		Core.Notification("Reanimation Already Running! Reset to continue.")
-		return
+		error("REANIMATE_ALREADY_RUNNING")
 	end
-	if game.Players.LocalPlayer.Character.Humanoid.Health == 0 then
-		Core.Notification("Player Is Dead, Reanimate when you will be alive.")
-		return
+	if Player.Character.Humanoid.Health == 0 then
+		error("PLAYER_NOT_ALIVE")
 	end
-	if not game:GetService("ReplicatedStorage"):FindFirstChild("FrostwareData") then
+	if not getgenv().GelatekReanimateConfig then
+		getgenv().GelatekReanimateConfig = {
+			["AnimationsDisabled"] = false,
+			["R15ToR6"] = false,
+			["PermanentDeath"] = false,
+			["TorsoFling"] = false,
+			["BulletEnabled"] = false,
+			["LoadLibrary"] = false,
+			["NewVelocityMethod"] = false,
+			["BulletConfig"] = {
+				["RunAfterReanimate"] = false,
+				["LockBulletOnTorso"] = false
+			}
+		}
+	end
+	if not game:GetService("ReplicatedStorage"):FindFirstChild("GelatekReanimateData") then
 		local Folder = Instance.new("Folder")
-		Folder.Name = "FrostwareData"
+		Folder.Name = "GelatekReanimateData"
 		Folder.Parent = game:GetService("ReplicatedStorage")
 		local Clone = game:GetObjects("rbxassetid://8440552086")[1]
 		Clone.Name = "R6FakeRig"
 		Clone.Parent = Folder
-		task.wait(0.55)
+		task.wait(0.65)
 	end
-	
 end
 
---// Settings
+
 local AreAnimationsDisabled = getgenv().GelatekReanimateConfig.AnimationsDisabled or false
-
 local IsPermaDeath = getgenv().GelatekReanimateConfig.PermanentDeath or false
-
 local IsBulletEnabled = getgenv().GelatekReanimateConfig.BulletEnabled or false
-
 local IsTorsoFling = getgenv().GelatekReanimateConfig.TorsoFling or false
-
 local IsLoadLibraryEnabled = getgenv().GelatekReanimateConfig.LoadLibrary or false
-
 local R15ToR6 = getgenv().GelatekReanimateConfig.R15ToR6 or false
+local NewVelocityMethod = getgenv().GelatekReanimateConfig.NewVelocityMethod or false
+local BulletConfig = getgenv().GelatekReanimateConfig.BulletConfig or {}
+local BulletAfterReanim = BulletConfig.RunAfterReanimate or false
+local LockBulletOnTorso = BulletConfig.LockBulletOnTorso or false
+local Core = { --// API Used to store functions easier
+	Offsets = {
+		["UpperTorso"] = CFrame.new(0,0.194,0),
+		["LowerTorso"] = CFrame.new(0,-0.79,0), 
+		["Root"] = CFrame.new(0,-0.0025,0),
+			
+		["UpperArm"] = CFrame.new(0,0.4085,0),
+		["LowerArm"] = CFrame.new(0,-0.184,0),
+		["Hand"] = CFrame.new(0,-0.83,0),
+			
+		["UpperLeg"] = CFrame.new(0,0.575,0),
+		["LowerLeg"] = CFrame.new(0,-0.199,0),
+		["Foot"] = CFrame.new(0,-0.849,0)
+	},
+	ReCreateWelds = function(Model,Accessory) -- Inspiration from DevForum Post made by admin.
+		local Handle = Accessory:FindFirstChild("Handle")
+		pcall(function() Handle:FindFirstChild("AccessoryWeld"):Destroy() end)
+		local NewWeld = Instance.new("Weld")
+		NewWeld.Name = "AccessoryWeld"
+		NewWeld.Part0 = Handle
 
-if IsTorsoFling == true and IsBulletEnabled == true then
-	IsTorsoFling = false
-	warn("TorsoFling and BulletEnabled are both true! Disabling TorsoFling")
+		local Attachment = Handle:FindFirstChildOfClass("Attachment")
+		if Attachment then
+			NewWeld.C0 = Attachment.CFrame
+			NewWeld.C1 = Model:FindFirstChild(tostring(Attachment), true).CFrame
+			NewWeld.Part1 = Model:FindFirstChild(tostring(Attachment), true).Parent
+		else
+			NewWeld.Part1 = Model:FindFirstChild("Head")
+			NewWeld.C1 = CFrame.new(0,Model:FindFirstChild("Head").Size.Y / 2,0) * Accessory.AttachmentPoint:Inverse()
+		end
+		Handle.CFrame = NewWeld.Part1.CFrame * NewWeld.C1 * NewWeld.C0:Inverse()
+		
+		NewWeld.Parent = Accessory.Handle
+	end,
+	GetLoadLibrary = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Addons/LoadLibrary.lua"))()
+	end,
+	Animations = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Addons/Animations.lua"))()
+	end,
+	Notification = function(Text)		
+		task.spawn(function()
+			local Message = Instance.new("Message")
+			Message.Text = "Gelatek Reanimate: "..Text
+			Message.Parent = workspace
+			task.wait(3)
+			Message:Destroy()
+		end)
+	end,
+	Align = function(Part0,Part1,OffSetPos,OffsetAngles)
+		local NetworkChecking = isnetworkowner or is_network_owner or function(Part) return Part.ReceiveAge == 0 end
+		local Pos = OffSetPos or CFrame.new(0,0,0)
+		local Angle = OffsetAngles or CFrame.Angles(0,0,0)
+		if NetworkChecking(Part0) == true then
+			Part0.CFrame = Part1.CFrame * Pos * Angle
+		end
+	end,
+	DisableCollisions = function(Table)
+		for Index, Part in ipairs(Table) do
+			if Part:IsA("BasePart") then
+				if Part and Part.Parent then
+					Part.CanCollide = false
+				end
+			end
+		end
+	end,
+	DisableScripts = function(Table)
+		for Index,Scripts in ipairs(Table) do
+			if Scripts:IsA("LocalScript") or Scripts:IsA("Script") then
+				Scripts.Disabled = true
+			end
+		end
+	end,
+	Network = function()
+		HiddenProps(game.Players.LocalPlayer, "MaximumSimulationRadius", 2763+1e5)
+		HiddenProps(game.Players.LocalPlayer, "SimulationRadius", 2763+1e5)
+	end,
+	CreateSignal = function(DataModel,Name,Callback)
+		local Service = game:GetService(DataModel)
+		table.insert(Events,Service[Name]:Connect(Callback))
+	end,
+	CreateDummy = function(Name)
+		local Dummy = game:GetService("ReplicatedStorage"):FindFirstChild("GelatekReanimateData").R6FakeRig:Clone() 
+		Dummy.Name = Name or "Reanimate"
+		for Index,Misc in ipairs(Dummy:GetDescendants()) do
+			if Misc:IsA("BasePart") or Misc:IsA("Decal") then
+				Misc.Transparency = 1
+			end
+		end
+		Dummy.Parent = game:GetService("Workspace") -- hahahaha
+	end,
+	Resetting = function(Model1,Model2)
+		game.Players.LocalPlayer.Character = Model1
+		Model1.Parent = workspace
+		Model2:Destroy(); Model1:BreakJoints()
+		-- Remove Vars, Disconnect Events
+		IsPlayerDead = true
+		getgenv().OGChar = nil
+		getgenv().PartDisconnecting = nil
+		for i,v in ipairs(Events) do
+			v:Disconnect()
+		end
+		for i,v in ipairs(getgenv().TableOfEvents) do
+			v:Disconnect()
+		end
+	end,	
+	PermaDeath = function(Model)
+		task.spawn(function()
+			game:GetService("StarterGui"):SetCore("ResetButtonCallback", false)
+			task.wait(game:GetService("Players").RespawnTime + game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue() / 750)
+			local Head = Model:FindFirstChild("Head")
+			Head:BreakJoints() 
+			game:GetService("StarterGui"):SetCore("ResetButtonCallback", true)
+		end)
+	end,
+	BreakJoints = function(Table)
+		for i,v in ipairs(Table) do
+			if v:IsA("Motor6D") and v.Name ~= "Neck" then
+				v:Destroy()
+			elseif v.Name == "AccessoryWeld" then
+				if IsPermaDeath == true then
+					v:Destroy()
+				elseif IsPermaDeath == false then
+					local Attachment = v.Parent:FindFirstChildOfClass("Attachment")
+					if Attachment.Name ~= "HatAttachment" and Attachment.Name ~= "FaceFrontAttachment" and Attachment.Name ~= "HairAttachment" and Attachment.Name ~= "FaceCenterAttachment" then
+						v:Destroy()
+					end
+				end	
+			end
+		end
+	end,
+	GetRig = function(Humanoid)
+		if Humanoid.RigType == Enum.HumanoidRigType.R15 then
+			return "R15"
+		else
+			return "R6"
+		end
+	end,
+	HatRenamer = function(Table)
+		local HatsNameTable = {}
+		for Index, Accessory in next, Table do
+			if Accessory:IsA("Accessory") then
+				if HatsNameTable[Accessory.Name] then
+					if HatsNameTable[Accessory.Name] == "Unknown" then
+						HatsNameTable[Accessory.Name] = {}
+					end
+					table.insert(HatsNameTable[Accessory.Name], Accessory)
+				else
+					HatsNameTable[Accessory.Name] = "Unknown"
+				end	
+			end
+		end
+		for Index, Tables in ipairs(HatsNameTable) do
+			if type(Tables) == "table" then
+				local Number = 1
+				for Index2, Names in ipairs(Tables) do
+					Names.Name = Names.Name .. Number
+					Number = Number + 1
+				end
+			end
+		end
+		table.clear(HatsNameTable)
+	end,
+	CreateOutline = function(Part, Parent)
+		local SelectionBox = Instance.new("SelectionBox")
+		SelectionBox.LineThickness = 0.05
+		SelectionBox.Name = "FlingerHighlighter"
+		SelectionBox.Adornee = Part
+		SelectionBox.Parent = Parent
+	end
+}
+
+
+
+--// Rig Variables
+local OriginalRig = Player["Character"]
+local OriginalHum = OriginalRig:WaitForChild("Humanoid")
+local OriginalRigDescendants = OriginalRig:GetDescendants()
+local OriginalRigChildren = OriginalRig:GetChildren()
+local OriginalHumTracks = OriginalHum:GetPlayingAnimationTracks()
+local PlayerRigType = Core.GetRig(OriginalHum)
+OriginalRig.Archivable = true
+for Index, Object in pairs(OriginalHum:GetChildren()) do
+	if Object:IsA("NumberValue") then
+		Object:Destroy()
+		task.wait() -- Cooldown so it does not trigger in games
+	end
 end
-if R15ToR6 == false and game.Players.LocalPlayer.Character.Humanoid.RigType == Enum.HumanoidRigType.R15 then
-	IsBulletEnabled = false
-	IsTorsoFling = false
-	warn("R15ToR6 Is disabled! Disabling TorsoFling/BulletEnabled")
+pcall(function()
+	OriginalRig:FindFirstChild("Local Ragdoll"):Destroy()
+	OriginalRig:FindFirstChild("State Handler"):Destroy()
+	OriginalRig:FindFirstChild("Controls"):Destroy()
+	OriginalRig:FindFirstChild("FirstPerson"):Destroy()
+	OriginalRig:FindFirstChild("FakeAdmin"):Destroy()
+
+	for Index, RagdollStuff in pairs(OriginalRigDescendants) do
+		if RagdollStuff:IsA("BallSocketConstraint") or RagdollStuff:IsA("HingeConstraint") then
+			RagdollStuff:Destroy()
+		end
+	end
+end)
+
+do --// Fix/Print Configs
+	if IsTorsoFling == true and IsBulletEnabled == true then
+		IsTorsoFling = false
+		warn("Gelatek Reanimate - TorsoFling and BulletEnabled are both true! Disabling TorsoFling")
+	end
+	if R15ToR6 == false and PlayerRigType == "R15" then
+		IsBulletEnabled = false
+		IsTorsoFling = false
+		warn("Gelatek Reanimate - R15ToR6 Is disabled! Disabling TorsoFling/BulletEnabled")
+	end
+	warn("Gelatek Reanimate - Default Animations Disabled: "..tostring(AreAnimationsDisabled))
+	warn("Gelatek Reanimate - R15 To R6: "..tostring(R15ToR6))
+	warn("Gelatek Reanimate - Permament Death: "..tostring(IsPermaDeath))
+	warn("Gelatek Reanimate - Torso Fling: "..tostring(IsTorsoFling))
+	warn("Gelatek Reanimate - Bullet Enabled: "..tostring(IsBulletEnabled))
+	warn("Gelatek Reanimate - LoadLibrary Enabled: "..tostring(IsLoadLibraryEnabled))
+	warn("Gelatek Reanimate - New Velocity Method: "..tostring(NewVelocityMethod))
 end
 
---// SimpleAPI
-warn("Gelatek Reanimate - Default Animations Disabled: "..tostring(AreAnimationsDisabled))
-warn("Gelatek Reanimate - R15 To R6: "..tostring(R15ToR6))
-warn("Gelatek Reanimate - Permament Death: "..tostring(IsPermaDeath))
-warn("Gelatek Reanimate - Torso Fling: "..tostring(IsTorsoFling))
-warn("Gelatek Reanimate - Bullet Enabled: "..tostring(IsBulletEnabled))
-warn("Gelatek Reanimate - LoadLibrary Enabled: "..tostring(IsLoadLibraryEnabled))
-
-do 
+do --// Optimizations/Boosting
 	settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
 	settings().Physics.AllowSleep = false
 	settings().Physics.ForceCSGv2 = false
@@ -90,339 +296,353 @@ do
 	settings().Physics.UseCSGv2 = false
 	settings().Physics.ThrottleAdjustTime = math.huge
 	game.Players.LocalPlayer.ReplicationFocus = workspace
-
-	HiddenProps(workspace,"PhysicsSteppingMethod",Enum.PhysicsSteppingMethod.Fixed)
-	HiddenProps(workspace,"PhysicsSimulationRateReplicator",Enum.PhysicsSimulationRate.Fixed240Hz)
+	HiddenProps(workspace, "PhysicsSteppingMethod", Enum.PhysicsSteppingMethod.Fixed)
+	HiddenProps(workspace, "PhysicsSimulationRateReplicator", Enum.PhysicsSimulationRate.Fixed240Hz)
+	Core.DisableScripts(OriginalRigChildren)
+	if IsTorsoFling == false then OriginalHum:ChangeState(Enum.HumanoidStateType.Physics) end
+	if setfpscap then setfpscap(60) end
 end
 
-if setfpscap then
-	setfpscap(60.1)
-	task.wait(0.05)
-end
---// Get Variables
-local Player = game:GetService("Players").LocalPlayer
-local Character = Player["Character"]
-local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-Character.Archivable = true
-
-for i,v in ipairs(Character:GetDescendants()) do
-	if v:IsA("Tool") then
-		v:Destroy()
-	end
-end
-for i,v in ipairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-	if v:IsA("Tool") then
-		v:Destroy()
-	end
-end
-
-
-local HatsFolder = Instance.new("Folder") -- Hats Folder (For Stop Script)
-HatsFolder.Name = "FakeHats"
-HatsFolder.Parent = Character
-
-Core.DestroyBodyResizers(Humanoid) -- Humanoid Configs
-if IsTorsoFling == false then
-	Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-end
-PlayerRigType = Core.GetRig(Humanoid)
-
-if PlayerRigType == "R6" then
-	Core.CreateDummy("GelatekReanimate", workspace) -- Dummy Creation
-elseif PlayerRigType == "R15" and R15ToR6 == true then
-	Core.CreateDummy("GelatekReanimate", workspace) -- Dummy Creation
-elseif PlayerRigType == "R15" and R15ToR6 == false then
-	local Dummy = Character:Clone() 
-	Dummy.Name = "GelatekReanimate"
-	for i,v in pairs(Dummy:GetDescendants()) do
-		if v:IsA("BasePart") or v:IsA("Decal") then
-			v.Transparency = 1
-		end
-		if v:IsA("Accessory") then
-			v:Destroy()
-		end
-	end
-	Dummy.Parent = workspace
-
-end
-Core.DisableScripts(Character)
-
-
-local Dummy = workspace:WaitForChild("GelatekReanimate") -- DummyVariables/Configs
-local DummyHumanoid = Dummy:FindFirstChildOfClass("Humanoid")
-DummyHumanoid.BreakJointsOnDeath = false
-Dummy:MoveTo(Character.Head.Position + Vector3.new(0,-2,0)) -- Get Dummy Nearby You
-if workspace:FindFirstChildOfClass("Camera") then
-	workspace:FindFirstChildOfClass("Camera").CameraSubject = DummyHumanoid -- Fix Camera
-end
-
-Character.Parent = Dummy -- Fix First Person Part Transparency
-Core.BreakJoints(Character) -- Break Joints
-
--- Tables
-local CharChildren = Character:GetChildren()
-local CharDescendants = Character:GetDescendants()
-
-local DummyChildren = Dummy:GetChildren()
-local DummyDescendants = Dummy:GetDescendants()
-
--- Better To update tables with ChildAdded/ChildRemoved Signal because its optimized.
-table.insert(Events, Character.ChildAdded:Connect(function(Tool) -- Character Added
-	CharChildren = Character:GetChildren()
-	CharDescendants = Character:GetDescendants()
-end))
-
-table.insert(Events, Character.ChildRemoved:Connect(function() -- Character Removed
-	CharChildren = Character:GetChildren()
-	CharDescendants = Character:GetDescendants()
-end))
-
-table.insert(Events, Dummy.ChildAdded:Connect(function(Tool) -- Clone Added
-	DummyChildren = Dummy:GetChildren()
-	DummyDescendants = Dummy:GetDescendants()
-end))
-
-table.insert(Events, Dummy.ChildRemoved:Connect(function() -- Clone Removed
-	DummyChildren = Dummy:GetChildren()
-	DummyDescendants = Dummy:GetDescendants()
-end))
-
-Core.MiztRenamer(CharChildren) -- Rename Hats to avoid weird hat placements.
-for _,v in pairs(CharChildren) do -- Copying Hats
-	if v:IsA("Accessory") then
-		local FakeHats1 = v:Clone() -- HatsFolder
-		FakeHats1.Handle.Transparency = 1
-		FakeHats1.Parent = HatsFolder
-		Core.ReCreateAccessoryWelds(Dummy, FakeHats1) -- Remake Offsets
-		
-		local FakeHats2 = FakeHats1:Clone() -- Dummy
-		FakeHats2.Parent = Dummy
-	end
-end
--- UGLIEST PART #1
-if IsBulletEnabled == true then -- Bullet Checking
-	getgenv().PartDisconnecting = false
-	if PlayerRigType == "R6" then
-		if IsPermaDeath == true then
-			BulletR6 = Character["HumanoidRootPart"]
-			BulletR6.Name = "Bullet"
-			BulletR6.Transparency = 0.8
-			Core.CreateOutline(BulletR6)
-			HatReplicaR6 = nil
-		else
-			BulletR6 = Character["Left Arm"]
-			HatReplicaR6 = "Robloxclassicred"
-			BulletR6.Name = "Bullet"
-			BulletR6.Transparency = 0.8
-			Core.CreateOutline(BulletR6)
-			if HatReplicaR6 and Character:FindFirstChild(HatReplicaR6) then
-				Character:FindFirstChild(HatReplicaR6).Handle:ClearAllChildren()
+do --// Dummy Creation
+	if PlayerRigType == "R6" or (PlayerRigType == "R15" and R15ToR6 == true) then
+		Core.CreateDummy("GelatekReanimate", workspace) -- Dummy Creation
+	elseif PlayerRigType == "R15" and R15ToR6 == false then
+		local Dummy = OriginalRig:Clone() 
+		Dummy.Name = "GelatekReanimate"
+		for Index, Misc in ipairs(Dummy:GetDescendants()) do
+			if Misc:IsA("BasePart") or Misc:IsA("Decal") then
+				Misc.Transparency = 1
+			end
+			if Misc:IsA("Accessory") then
+				Misc:Destroy()
 			end
 		end
-	else
-		BulletR15 = Character["LeftUpperArm"]
-		BulletR15.Name = "Bullet"
-		HatReplicaR15 = "SniperShoulderL"
-		BulletR15.Transparency = 0.8
-		Core.CreateOutline(BulletR15)
+		Dummy.Parent = workspace
 	end
-else
-	BulletR6 = nil
-	HatReplicaR6 = nil
-	BulletR15 = nil
-	HatReplicaR15 = nil
 end
-if IsTorsoFling == true then
-	if PlayerRigType == "R6" then
-		PartFling = "Torso"
-	else
-		PartFling = "HumanoidRootPart"
+
+local FakeRig = workspace:WaitForChild("GelatekReanimate")
+local FakeHum = FakeRig:FindFirstChildOfClass("Humanoid")
+local FakeRigDescendants = FakeRig:GetDescendants()
+local FakeRigChildren = FakeRig:GetChildren()
+FakeHum.BreakJointsOnDeath = false
+FakeRig:MoveTo(OriginalRig.HumanoidRootPart.Position)
+Core.BreakJoints(OriginalRigDescendants)
+OriginalRig.Parent = FakeRig
+pcall(function() workspace:FindFirstChildOfClass("Camera").CameraSubject = FakeHum end)
+for Index,Track in ipairs(OriginalHumTracks) do
+	Track:Stop()
+end
+do --// AccessoryWeld Recreation (Fix Offsets)
+	Core.HatRenamer(OriginalRigChildren)
+	for Index,Part in pairs(OriginalRigChildren) do
+		if Part:IsA("Accessory") then
+			local FakeHats1 = Part:Clone()
+			FakeHats1.Handle.Transparency = 1
+			Core.ReCreateWelds(FakeRig, FakeHats1)
+			FakeHats1.Parent = FakeRig
+		end
 	end
-else
-	PartFling = ""
 end
--- Collisions/Movement/Network
-Core.CreateSignal(Events, "RunService", "Stepped", function()
-	Core.DisableCollisions(CharDescendants, DummyDescendants)
-	Core.Movement(Humanoid, DummyHumanoid)
+
+do --// Bullet/Collision Fling Checking
+	if IsBulletEnabled == true then
+		getgenv().PartDisconnecting = false
+		if PlayerRigType == "R6" then
+			BulletR6 = OriginalRig["Left Arm"]
+			HatReplicaR6 = OriginalRig:FindFirstChild("Robloxclassicred")
+			if IsPermaDeath == true then
+				BulletR6 = OriginalRig["HumanoidRootPart"]
+				HatReplicaR6 = nil
+			end
+			if HatReplicaR6 then
+				HatReplicaR6.Handle:ClearAllChildren()
+			end
+			BulletR6.Name = "Bullet"
+			BulletR6.Transparency = 0.65
+			Core.CreateOutline(BulletR6, FakeRig)
+		elseif PlayerRigType == "R15" then -- Overcomplicating to make the code more readable.
+			BulletR15 = OriginalRig["LeftUpperArm"]
+			BulletR15.Name = "Bullet"
+			HatReplicaR15 = OriginalRig:FindFirstChild("SniperShoulderL")
+			Core.CreateOutline(BulletR15, FakeRig)
+		end
+	end
+	
+	if IsTorsoFling == true then
+		PartFling = OriginalRig:FindFirstChild("Torso") or OriginalRig:FindFirstChild("HumanoidRootPart")
+		Core.CreateOutline(PartFling, FakeRig)
+	end
+end
+
+Core.CreateSignal("RunService", "Stepped", function() -- Disable Collisions, Movement, Velocity Receiver and Net Claimer
+	Core.DisableCollisions(OriginalRigDescendants)
+	Core.DisableCollisions(FakeRigDescendants)
 	Core.Network()
+	for Index,Track in ipairs(OriginalHumTracks) do
+		Track:Stop()
+	end
+	FakeHum:Move(OriginalHum.MoveDirection, false)
+	if NewVelocityMethod == true then
+		Velocity = Vector3.new(FakeRig["HumanoidRootPart"].CFrame.LookVector.X * 85, FakeRig["HumanoidRootPart"].AssemblyLinearVelocity.Y * 10, FakeRig["HumanoidRootPart"].CFrame.LookVector.Z * 85)
+	else
+		Velocity = Vector3.new(FakeRig["HumanoidRootPart"].AssemblyLinearVelocity.X * 5, 25.32, FakeRig["HumanoidRootPart"].AssemblyLinearVelocity.Z * 5)
+	end
 end)
 
--- Jumping
-Core.CreateSignal(Events, "UserInputService", "JumpRequest", function()
-	Core.Jumping(DummyHumanoid)
+Core.CreateSignal("UserInputService", "JumpRequest", function() -- Jumping
+	FakeHum.Jump = true
+	FakeHum.Sit = false
 end)
 
---
+do --// Extra Properties, Anchor Claim
+	task.wait()
+	OriginalHum.Animator:Remove()
+	for Index,Part in ipairs(OriginalRigDescendants) do
+		if Part:IsA("BasePart") then
+			Part:ApplyImpulse(Vector3.new(25.05,0,0))
+			Part.Massless = true
+			Part.CustomPhysicalProperties = PhysicalProperties.new(0,0,0,0,0)
+			Part.RootPriority = 127
+			task.spawn(function() -- Stability
+				Part.Anchored = true
+				task.wait(0.25)
+				Part.Anchored = false
+			end)
+		end
+	end
+end
 
-local R6TorsoFlingVelocity = Vector3.new(30,40,30)
 task.spawn(function()
-	task.wait(2.5)
-	R6TorsoFlingVelocity = Vector3.new(1000,1000,1000)
+	if IsPermaDeath == false then
+		R6TorsoVel = Vector3.new(30,30,30)
+		task.wait(2.5)
+		R6TorsoVel = Vector3.new(1500,1500,1500)
+	else
+		R6TorsoVel = Vector3.new(30,30,30)
+		task.wait(6)
+		R6TorsoVel = Vector3.new(1500,1500,1500)
+	end
 end)
-local Off = 1
-local Off2 = 0.07
-coroutine.wrap(function()
-	while wait(0.05) do
+coroutine.wrap(function() --// Delayless Method; Used for root Y cframing.
+	while task.wait(0.01) do
 		if IsPlayerDead then
 			break
 		end
-		Off2 = Off2 * -1
-		Off = Off * -1 
+		Offset = Offset * -1
+		OffsetR15 = OffsetR15 * -1
 	end
 end)()
--- Velocity/Main Part
-Core.CreateSignal(Events, "RunService", "Heartbeat", function()
-	Velocity = Vector3.new(Dummy["HumanoidRootPart"].AssemblyLinearVelocity.X * 5, 25.32, Dummy["HumanoidRootPart"].AssemblyLinearVelocity.Z * 5)
-	for i,v in pairs(CharDescendants) do
-		if v:IsA("BasePart") then
-			if v and v.Parent and v.Name ~= PartFling then -- Velocity
-				v.RootPriority = 127
-				v.Velocity = Velocity
-				if BulletR6 and v.Name ~= BulletR6.Name or BulletR15 and v.Name ~= BulletR15.Name then
-					v.AssemblyAngularVelocity = Vector3.new()
+
+if IsPermaDeath == true then
+	Core.PermaDeath(OriginalRig)
+end
+Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, CFraming)
+	for Index,Part in ipairs(OriginalRigDescendants) do
+		if Part:IsA("BasePart") and (not PartFling) then
+			if Part and Part.Parent then
+				Part.Velocity = Velocity
+				HiddenProps(Part, "NetworkIsSleeping", false)
+				if BulletR6 and Part.Name ~= BulletR6.Name or BulletR15 and Part.Name ~= BulletR15.Name then
+					Part.AssemblyAngularVelocity = Vector3.new()
 				end
 			end
-		end
-		if v:IsA("Accessory") then
-			if v and v.Parent then
-				if v.Name ~= HatReplicaR6 and v.Name ~= HatReplicaR15 then
-					Core.Align(v.Handle,Dummy[v.Name].Handle)
-				end
+		elseif Part:IsA("Accessory") then
+			if Part and Part.Parent and Part:FindFirstChild("Handle") then
+				Core.Align(Part.Handle, FakeRig[Part.Name].Handle)
 			end
 		end
 	end
-	if PartFling and Character:FindFirstChild(PartFling) then
+	
+	if PartFling then
 		if PlayerRigType == "R6" then
-			Character:FindFirstChild(PartFling).Velocity = R6TorsoFlingVelocity
-			Character:FindFirstChild(PartFling).AssemblyAngularVelocity = Vector3.new(0,0,0)
+			PartFling.Velocity = R6TorsoVel + Velocity
+			PartFling.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		else
-			Character:FindFirstChild(PartFling).Velocity = Velocity
-			Character:FindFirstChild(PartFling).RotVelocity = Vector3.new(2000,2000,2000)
+			PartFling.Velocity = Velocity
+			PartFling.RotVelocity = Vector3.new(2000,2000,2000)
 		end
-		Character:FindFirstChild(PartFling).RootPriority = 127
 	end
 	pcall(function()
 		if IsPermaDeath == true then
-			Core.Align(Character["Head"], Dummy["Head"])
+			Core.Align(OriginalRig.Head, FakeRig.Head)
 		end
-		
 		if PlayerRigType == "R6" then
-			if IsPermaDeath == true then -- Ugly Code But Works
-				Core.Align(Character["Left Arm"], Dummy["Left Arm"])
-				if IsBulletEnabled == true then
-					if getgenv().PartDisconnecting == false then 
-						Core.Align(BulletR6, Dummy["HumanoidRootPart"], CFrame.new(0,Off,0)) 
-					end
-				elseif IsBulletEnabled == false then
-					Core.Align(Character["HumanoidRootPart"], Dummy["HumanoidRootPart"], CFrame.new(0,Off,0))	
+			if IsBulletEnabled == true then
+				if HatReplicaR6 and HatReplicaR6:FindFirstChild("Handle") then
+					Core.Align(HatReplicaR6.Handle, FakeRig['Left Arm'], CFrame.new(),CFrame.Angles(math.rad(90),0,0))
 				end
-			elseif IsPermaDeath == false then 
-				Core.Align(Character["HumanoidRootPart"], Dummy["HumanoidRootPart"], CFrame.new(0,Off,0))	
-			end
-		
-			if IsBulletEnabled == true and IsPermaDeath == false then
 				if getgenv().PartDisconnecting == false then
-					Core.Align(BulletR6, Dummy["Left Arm"])
-				end
-				if HatReplicaR6 and Character:FindFirstChild(HatReplicaR6) then
-					Character:FindFirstChild(HatReplicaR6).Handle.CFrame = Dummy["Left Arm"].CFrame * CFrame.Angles(math.rad(90),0,0)
+					if BulletR6.Size == Vector3.new(1,2,1) then
+						Core.Align(BulletR6, FakeRig['Left Arm']); Core.Align(OriginalRig['HumanoidRootPart'], FakeRig['HumanoidRootPart'], CFrame.new(0,Offset,0))
+					end
+					if BulletR6.Size == Vector3.new(2,2,1) then
+						Core.Align(BulletR6, FakeRig['HumanoidRootPart'], CFrame.new(0,Offset,0)); Core.Align(OriginalRig['Left Arm'], FakeRig['Left Arm'])
+					end
 				end
 			else
-				Core.Align(Character["Left Arm"], Dummy["Left Arm"])
+				Core.Align(OriginalRig['Left Arm'], FakeRig['Left Arm']); Core.Align(OriginalRig['HumanoidRootPart'], FakeRig['HumanoidRootPart'], CFrame.new(0,Offset,0))
 			end
-			Core.Align(Character["Torso"], Dummy["Torso"])
-			Core.Align(Character["Right Arm"], Dummy["Right Arm"])
-			Core.Align(Character["Right Leg"], Dummy["Right Leg"])
-			Core.Align(Character["Left Leg"], Dummy["Left Leg"])
-		else
+			
+			Core.Align(OriginalRig['Torso'], FakeRig['Torso'])
+			Core.Align(OriginalRig['Right Arm'], FakeRig['Right Arm'])
+			Core.Align(OriginalRig['Right Leg'], FakeRig['Right Leg'])
+			Core.Align(OriginalRig['Left Leg'], FakeRig['Left Leg'])
+		elseif PlayerRigType == "R15" then
 			if R15ToR6 == true then
-				Character.PrimaryPart = Character["UpperTorso"] -- Net Fix
-				Core.Align(Character["UpperTorso"], Dummy["Torso"], Core.Offsets.UpperTorso)
-				Core.Align(Character["HumanoidRootPart"], Character["UpperTorso"], CFrame.new(0,Off2,0))
-				Core.Align(Character["LowerTorso"], Dummy["Torso"], Core.Offsets.LowerTorso)
+				Core.Align(OriginalRig["UpperTorso"], FakeRig["Torso"], Core.Offsets.UpperTorso)
+				Core.Align(OriginalRig["HumanoidRootPart"], OriginalRig["UpperTorso"], CFrame.new(0,OffsetR15,0))
+				Core.Align(OriginalRig["LowerTorso"], FakeRig["Torso"], Core.Offsets.LowerTorso)
+				
 				if IsBulletEnabled == true then
-					if getgenv().PartDisconnecting == false then
-						Core.Align(BulletR15, Dummy["Left Arm"])
+					if HatReplicaR15 and HatReplicaR15:FindFirstChild("Handle") then
+						Core.Align(HatReplicaR15.Handle, FakeRig['Left Arm'], CFrame.new(0,0.5085,0))
 					end
-					if HatReplicaR15 and Character:FindFirstChild(HatReplicaR15) then
-						Character:FindFirstChild(HatReplicaR15).Handle.CFrame = Dummy["Left Arm"].CFrame * CFrame.new(0,0.5085,0)
+					if getgenv().PartDisconnecting == false then
+						Core.Align(BulletR15, FakeRig["Left Arm"], Core.Offsets.UpperArm)
 					end
 				else
-					Core.Align(Character["LeftUpperArm"], Dummy["Left Arm"], Core.Offsets.UpperArm)
+					Core.Align(OriginalRig["LeftUpperArm"], FakeRig["Left Arm"], Core.Offsets.UpperArm)
 				end
-				Core.Align(Character["RightUpperArm"], Dummy["Right Arm"], Core.Offsets.UpperArm)
-				Core.Align(Character["RightLowerArm"], Dummy["Right Arm"], Core.Offsets.LowerArm)
-				Core.Align(Character["RightHand"], Dummy["Right Arm"], Core.Offsets.Hand)
+				Core.Align(OriginalRig["RightUpperArm"], FakeRig["Right Arm"], Core.Offsets.UpperArm)
+				Core.Align(OriginalRig["RightLowerArm"], FakeRig["Right Arm"], Core.Offsets.LowerArm)
+				Core.Align(OriginalRig["RightHand"], FakeRig["Right Arm"], Core.Offsets.Hand)
 
-				Core.Align(Character["LeftLowerArm"], Dummy["Left Arm"], Core.Offsets.LowerArm)
-				Core.Align(Character["LeftHand"], Dummy["Left Arm"], Core.Offsets.Hand)
-							
-				Core.Align(Character["RightUpperLeg"], Dummy["Right Leg"], Core.Offsets.UpperLeg)
-				Core.Align(Character["RightLowerLeg"], Dummy["Right Leg"], Core.Offsets.LowerLeg)
-				Core.Align(Character["RightFoot"], Dummy["Right Leg"], Core.Offsets.Foot)
-										
-				Core.Align(Character["LeftUpperLeg"], Dummy["Left Leg"], Core.Offsets.UpperLeg)
-				Core.Align(Character["LeftLowerLeg"], Dummy["Left Leg"], Core.Offsets.LowerLeg)
-				Core.Align(Character["LeftFoot"], Dummy["Left Leg"], Core.Offsets.Foot)
+				Core.Align(OriginalRig["LeftLowerArm"], FakeRig["Left Arm"], Core.Offsets.LowerArm)
+				Core.Align(OriginalRig["LeftHand"], FakeRig["Left Arm"], Core.Offsets.Hand)
+								
+				Core.Align(OriginalRig["RightUpperLeg"], FakeRig["Right Leg"], Core.Offsets.UpperLeg)
+				Core.Align(OriginalRig["RightLowerLeg"], FakeRig["Right Leg"], Core.Offsets.LowerLeg)
+				Core.Align(OriginalRig["RightFoot"], FakeRig["Right Leg"], Core.Offsets.Foot)
+												
+				Core.Align(OriginalRig["LeftUpperLeg"], FakeRig["Left Leg"], Core.Offsets.UpperLeg)
+				Core.Align(OriginalRig["LeftLowerLeg"], FakeRig["Left Leg"], Core.Offsets.LowerLeg)
+				Core.Align(OriginalRig["LeftFoot"], FakeRig["Left Leg"], Core.Offsets.Foot)
 			else
-				Core.Align(Character["UpperTorso"], Dummy["UpperTorso"])
-				Core.Align(Character["HumanoidRootPart"], Character["UpperTorso"], CFrame.new(0,Off2,0))
-				Core.Align(Character["LowerTorso"], Dummy["LowerTorso"])
+				Core.Align(OriginalRig["UpperTorso"], FakeRig["UpperTorso"])
+				Core.Align(OriginalRig["HumanoidRootPart"], OriginalRig["UpperTorso"], CFrame.new(0,OffsetR15,0))
+				Core.Align(OriginalRig["LowerTorso"], FakeRig["LowerTorso"])
 
-				Core.Align(Character["RightUpperArm"], Dummy["RightUpperArm"])
-				Core.Align(Character["RightLowerArm"], Dummy["RightLowerArm"])
-				Core.Align(Character["RightHand"], Dummy["RightHand"])
+				Core.Align(OriginalRig["RightUpperArm"], FakeRig["RightUpperArm"])
+				Core.Align(OriginalRig["RightLowerArm"], FakeRig["RightLowerArm"])
+				Core.Align(OriginalRig["RightHand"], FakeRig["RightHand"])
+				
+				Core.Align(OriginalRig["LeftUpperArm"], FakeRig["LeftUpperArm"])
+				Core.Align(OriginalRig["LeftLowerArm"], FakeRig["LeftLowerArm"])
+				Core.Align(OriginalRig["LeftHand"], FakeRig["LeftHand"])
 
-				Core.Align(Character["LeftUpperArm"], Dummy["LeftUpperArm"])
-				Core.Align(Character["LeftLowerArm"], Dummy["LeftLowerArm"])
-				Core.Align(Character["LeftHand"], Dummy["LeftHand"])
+				Core.Align(OriginalRig["RightUpperLeg"], FakeRig["RightUpperLeg"])
+				Core.Align(OriginalRig["RightLowerLeg"], FakeRig["RightLowerLeg"])
+				Core.Align(OriginalRig["RightFoot"], FakeRig["RightFoot"])
 
-				Core.Align(Character["RightUpperLeg"], Dummy["RightUpperLeg"])
-				Core.Align(Character["RightLowerLeg"], Dummy["RightLowerLeg"])
-				Core.Align(Character["RightFoot"], Dummy["RightFoot"])
-
-				Core.Align(Character["LeftUpperLeg"], Dummy["LeftUpperLeg"])
-				Core.Align(Character["LeftLowerLeg"], Dummy["LeftLowerLeg"])
-				Core.Align(Character["LeftFoot"], Dummy["LeftFoot"])	
+				Core.Align(OriginalRig["LeftUpperLeg"], FakeRig["LeftUpperLeg"])
+				Core.Align(OriginalRig["LeftLowerLeg"], FakeRig["LeftLowerLeg"])
+				Core.Align(OriginalRig["LeftFoot"], FakeRig["LeftFoot"])	
 			end
 		end
 	end)
 end)
-getgenv().OGChar = Character -- Make A Variable for character to manage it easier
-game.Players.LocalPlayer.Character = Dummy -- All scripts will go to dummy instead of your character
-if IsPermaDeath == true then
-	task.spawn(function()
-		Core.PermaDeath(Character)
-	end)
-end
--- Disconnecting Parts
-table.insert(Events, DummyHumanoid.Died:Connect(function()
-	Core.Resetting(Events, Character, Dummy)
-end))
-if IsPermaDeath == false then
-	table.insert(Events, Humanoid.Died:Connect(function()
-		Core.Resetting(Events, Character, Dummy)
-	end))
-end
-table.insert(Events, game.Players.LocalPlayer.CharacterAdded:Connect(function()
-	Core.Resetting(Events, Character, Dummy)
-end))
--- Animations
-if AreAnimationsDisabled ~= true then
-	if PlayerRigType == "R6" then
-		Core.Animations()
-	elseif PlayerRigType == "R15" and R15ToR6 == true then
-		Core.Animations()
-	elseif PlayerRigType == "R15" and R15ToR6 == false then
-		local Anim = Character.Animate:Clone()
-		Dummy.Animate:Destroy()
-		Anim.Parent = Dummy
-		Anim.Disabled = false
+
+Player.Character = FakeRig
+getgenv().OGChar = OriginalRig
+Core.Notification("Loaded! By: Gelatek \n (Thanks: CenteredSniper, Mizt, MW)")
+
+do --// Animations
+	if AreAnimationsDisabled == false then
+		if PlayerRigType == "R6" or (PlayerRigType == "R15" and R15ToR6 == true) then
+			Core.Animations()
+		elseif PlayerRigType == "R15" and R15ToR6 == false then
+			local Anim = OriginalRig.Animate:Clone()
+			FakeRig.Animate:Destroy()
+			Anim.Parent = FakeRig
+			Anim.Disabled = false
+		end
 	end
 end
-if IsLoadLibraryEnabled == true then
-	Core.LoadLibrary()
+do --// Death Detectors
+	table.insert(Events, FakeHum.Died:Connect(function()
+		Core.Resetting(OriginalRig, FakeRig)
+	end))
+	if IsPermaDeath == false then
+		table.insert(Events, OriginalHum.Died:Connect(function()
+			Core.Resetting(OriginalRig, FakeRig)
+		end))
+	end
+	table.insert(Events, Player.CharacterAdded:Connect(function()
+		Core.Resetting(OriginalRig, FakeRig)
+	end))
 end
-Core.Notification("Loaded! By: Gelatek \n (Thanks: CenteredSniper, Mizt, MW)")
-print("Gelatek Reanimate - Loaded! Version: 1.1.2")
+
+do
+	if IsBulletEnabled == true and BulletAfterReanim == true then
+
+	getgenv().PartDisconnecting = true
+
+	local Players = game:GetService("Players")
+	local Character = workspace:FindFirstChild("GelatekReanimate")
+	local Bullet = getgenv().OGChar:FindFirstChild("Bullet")
+	local Mouse = Players.LocalPlayer:GetMouse()
+	local Power = Instance.new("BodyAngularVelocity")
+	Power.MaxTorque = Vector3.new(math.huge,math.huge,math.huge)
+	Power.P = math.huge
+	Power.AngularVelocity = Vector3.new(25000,25000,25000)
+	Power.Parent = Bullet
+	local BP = Instance.new("BodyPosition")
+	BP.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+	BP.P = 22500
+	BP.D = 125
+	BP.Position = Bullet.Position
+	BP.Parent = Bullet
+	local Held = false
+	table.insert(getgenv().TableOfEvents, Mouse.Button1Down:Connect(function()
+		Held = true
+	end))
+		
+	table.insert(getgenv().TableOfEvents, Mouse.Button1Up:Connect(function()
+		Held = false
+	end))
+
+	table.insert(getgenv().TableOfEvents, game:GetService("RunService").Heartbeat:Connect(function()
+		pcall(function()
+			if Held then
+				if LockBulletOnTorso == true then
+					if Mouse.Target:IsA("BasePart") then
+						if Players:GetPlayerFromCharacter(Mouse.Target.Parent) then
+							if Mouse.Target.Parent.Name ~= Players.LocalPlayer.Name then
+								BP.Position = Mouse.Target.Parent:FindFirstChild("Head").CFrame.p + Vector3.new(0,-1.5,0)
+							end
+						elseif Players:GetPlayerFromCharacter(Mouse.Target.Parent.Parent) then
+							if Mouse.Target.Parent.Parent.Name ~= Players.LocalPlayer.Name then
+							   BP.Position = Mouse.Target.Parent.Parent:FindFirstChild("Head").CFrame.p + Vector3.new(0,-1.5,0)
+							end
+						else
+							BP.Position = Mouse.Hit.Position
+						end
+					end
+				else
+					if Mouse.Target:IsA("BasePart") then
+						BP.Position = Mouse.Hit.Position
+					end
+				end
+			else
+			   BP.Position = Character["HumanoidRootPart"].Position
+			end
+		end)
+	end))
+	
+	end
+end
+
+do -- Bug Reporting
+	local function Copy(e)
+		setclipboard("https://discord.gg/3Qr97C4BDn")
+	end
+	local Bindable = Instance.new("BindableFunction");Bindable.OnInvoke = Copy
+	game.StarterGui:SetCore("SendNotification",{
+		Title = "Found A Bug?";
+		Text = "Click copy to get discord invite where you can report a bug! otherwise ignore.";
+		Duration = 10;
+		Callback = Bindable,
+		Button1 = "Copy";
+	})
+end
