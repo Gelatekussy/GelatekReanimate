@@ -15,12 +15,17 @@ This is the one of the best reanimate I ever made, it's stablest and less jitter
 # Code:
 ```lua
 getgenv().GelatekReanimateConfig = {
-	["AnimationsDisabled"] = false,
-	["R15ToR6"] = true,
-	["PermanentDeath"] = false,
-	["TorsoFling"] = false,
-	["BulletEnabled"] = false,
-	["LoadLibrary"] = false
+    ["AnimationsDisabled"] = false,
+    ["R15ToR6"] = false,
+    ["PermanentDeath"] = false,
+    ["TorsoFling"] = false,
+    ["BulletEnabled"] = true,
+    ["LoadLibrary"] = false,
+    ["NewVelocityMethod"] = true,
+    ["BulletConfig"] = {
+        ["RunAfterReanimate"] = false,
+        ["LockBulletOnTorso"] = false
+    }
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Main.lua"))()
 ```
