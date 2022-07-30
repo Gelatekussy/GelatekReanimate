@@ -1,5 +1,4 @@
 
-
 local Player = game:GetService("Players").LocalPlayer
 local HiddenProps = sethiddenproperty or set_hidden_property or function() end 
 local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
@@ -64,6 +63,7 @@ local IsTorsoFling = getgenv().GelatekReanimateConfig.TorsoFling or false
 local IsLoadLibraryEnabled = getgenv().GelatekReanimateConfig.LoadLibrary or false
 local R15ToR6 = getgenv().GelatekReanimateConfig.R15ToR6 or false
 local NewVelocityMethod = getgenv().GelatekReanimateConfig.NewVelocityMethod or false
+local DontBreakHairWelds = getgenv().GelatekReanimateConfig.DontBreakHairWelds or false
 local BulletConfig = getgenv().GelatekReanimateConfig.BulletConfig or {}
 local BulletAfterReanim = BulletConfig.RunAfterReanimate or false
 local LockBulletOnTorso = BulletConfig.LockBulletOnTorso or false
@@ -141,8 +141,13 @@ local Core = { --// API Used to store functions easier
 		end
 	end,
 	Network = function()
-		HiddenProps(game.Players.LocalPlayer, "MaximumSimulationRadius", 2763+1e5)
-		HiddenProps(game.Players.LocalPlayer, "SimulationRadius", 2763+1e5)
+		if syn then
+			pcall(function()
+				SetScript(Player, "SimulationRadius", true)
+			end)
+		end
+		HiddenProps(Player, "MaximumSimulationRadius", 2763+1e5)
+		HiddenProps(Player, "SimulationRadius", 2763+1e5)
 	end,
 	CreateSignal = function(DataModel,Name,Callback)
 		local Service = game:GetService(DataModel)
@@ -156,11 +161,13 @@ local Core = { --// API Used to store functions easier
 				Misc.Transparency = 1
 			end
 		end
-		Dummy.Parent = game:GetService("Workspace") -- hahahaha
+		Dummy.Parent = game:GetService("Workspace") -- hahahahaf
 	end,
 	Resetting = function(Model1,Model2)
-		game.Players.LocalPlayer.Character = Model1
-		Model1.Parent = workspace
+		if Model1 and Model1.Parent then
+			Model1.Parent = workspace
+		end
+		game.Players.LocalPlayer.Character = workspace[Model1.Name]
 		Model2:Destroy(); Model1:BreakJoints()
 		-- Remove Vars, Disconnect Events
 		IsPlayerDead = true
@@ -183,16 +190,22 @@ local Core = { --// API Used to store functions easier
 		end)
 	end,
 	BreakJoints = function(Table)
-		for i,v in ipairs(Table) do
-			if v:IsA("Motor6D") and v.Name ~= "Neck" then
-				v:Destroy()
-			elseif v.Name == "AccessoryWeld" then
+		for Index, Joint in ipairs(Table) do
+			if Joint:IsA("Motor6D") and Joint.Name ~= "Neck" then
+				Joint:Destroy()
+			elseif Joint.Name == "AccessoryWeld" then
+				-- DontBreakHairWelds = false // break
+				-- DontBreakHairWelds = true \\ dont break
 				if IsPermaDeath == true then
-					v:Destroy()
+					Joint:Destroy()
 				elseif IsPermaDeath == false then
-					local Attachment = v.Parent:FindFirstChildOfClass("Attachment")
-					if Attachment.Name ~= "HatAttachment" and Attachment.Name ~= "FaceFrontAttachment" and Attachment.Name ~= "HairAttachment" and Attachment.Name ~= "FaceCenterAttachment" then
-						v:Destroy()
+					local Attachment = Joint.Parent:FindFirstChildOfClass("Attachment")
+					if DontBreakHairWelds == true then
+						if Attachment.Name ~= "HatAttachment" and Attachment.Name ~= "FaceFrontAttachment" and Attachment.Name ~= "HairAttachment" and Attachment.Name ~= "FaceCenterAttachment" then
+							Joint:Destroy()
+						end
+					else
+						Joint:Destroy()
 					end
 				end	
 			end
@@ -262,7 +275,7 @@ pcall(function()
 	OriginalRig:FindFirstChild("FirstPerson"):Destroy()
 	OriginalRig:FindFirstChild("FakeAdmin"):Destroy()
 
-	for Index, RagdollStuff in pairs(OriginalRigDescendants) do
+	for Index, RagdollStuff in ipairs(OriginalRigDescendants) do
 		if RagdollStuff:IsA("BallSocketConstraint") or RagdollStuff:IsA("HingeConstraint") then
 			RagdollStuff:Destroy()
 		end
@@ -397,7 +410,6 @@ end)
 
 do --// Extra Properties, Anchor Claim
 	task.wait()
-	OriginalHum.Animator:Remove()
 	for Index,Part in ipairs(OriginalRigDescendants) do
 		if Part:IsA("BasePart") then
 			Part:ApplyImpulse(Vector3.new(25.05,0,0))
@@ -406,7 +418,7 @@ do --// Extra Properties, Anchor Claim
 			Part.RootPriority = 127
 			task.spawn(function() -- Stability
 				Part.Anchored = true
-				task.wait(0.25)
+				task.wait(0.2)
 				Part.Anchored = false
 			end)
 		end
@@ -634,15 +646,17 @@ do
 end
 
 do -- Bug Reporting
+	local Bindable = Instance.new("BindableFunction")
 	local function Copy(e)
 		setclipboard("https://discord.gg/3Qr97C4BDn")
+		Bindable:Destroy()
 	end
-	local Bindable = Instance.new("BindableFunction");Bindable.OnInvoke = Copy
+	Bindable.OnInvoke = Copy
 	game.StarterGui:SetCore("SendNotification",{
-		Title = "Found A Bug?";
-		Text = "Click copy to get discord invite where you can report a bug! otherwise ignore.";
-		Duration = 10;
-		Callback = Bindable,
-		Button1 = "Copy";
+			Title = "Found A Bug?\n Got a suggestion?";
+			Text = "Click copy to get discord invite where you can report a bug! otherwise ignore.";
+			Duration = 10;
+			Callback = Bindable,
+			Button1 = "Copy";
 	})
 end
