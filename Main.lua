@@ -413,6 +413,7 @@ do --// Extra Properties, Anchor Claim
 			Part:ApplyImpulse(Vector3.new(30,0,0))
 			Part.CustomPhysicalProperties = PhysicalProperties.new(0,0,0,0,0)
 			Part.RootPriority = 127
+			Part.Massless = true
 			task.spawn(function() -- Stability
 				Part.Anchored = true
 				task.wait(0.2)
