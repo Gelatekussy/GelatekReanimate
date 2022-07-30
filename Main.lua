@@ -1,4 +1,3 @@
-
 local Player = game:GetService("Players").LocalPlayer
 local HiddenProps = sethiddenproperty or set_hidden_property or function() end 
 local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
@@ -8,10 +7,9 @@ local Events = {}
 local PlayerRigType = ""
 local HatReplicaR6, BulletR6 = nil
 local HatReplicaR15, BulletR15 = nil
-local Velocity = Vector3.new(25.05,0,0)
+local Velocity = Vector3.new(30,0,0)
 local PartFling = nil
 local Offset = 1
-local OffsetR15 = 0.05
 local R6TorsoVel = Vector3.new(1000,1000,1000)
 if not getgenv().TableOfEvents then
 	getgenv().TableOfEvents = {}
@@ -412,8 +410,7 @@ do --// Extra Properties, Anchor Claim
 	task.wait()
 	for Index,Part in ipairs(OriginalRigDescendants) do
 		if Part:IsA("BasePart") then
-			Part:ApplyImpulse(Vector3.new(25.05,0,0))
-			Part.Massless = true
+			Part:ApplyImpulse(Vector3.new(30,0,0))
 			Part.CustomPhysicalProperties = PhysicalProperties.new(0,0,0,0,0)
 			Part.RootPriority = 127
 			task.spawn(function() -- Stability
@@ -442,7 +439,6 @@ coroutine.wrap(function() --// Delayless Method; Used for root Y cframing.
 			break
 		end
 		Offset = Offset * -1
-		OffsetR15 = OffsetR15 * -1
 	end
 end)()
 
@@ -503,7 +499,7 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 		elseif PlayerRigType == "R15" then
 			if R15ToR6 == true then
 				Core.Align(OriginalRig["UpperTorso"], FakeRig["Torso"], Core.Offsets.UpperTorso)
-				Core.Align(OriginalRig["HumanoidRootPart"], OriginalRig["UpperTorso"], CFrame.new(0,OffsetR15,0))
+				Core.Align(OriginalRig["HumanoidRootPart"], OriginalRig["UpperTorso"])
 				Core.Align(OriginalRig["LowerTorso"], FakeRig["Torso"], Core.Offsets.LowerTorso)
 				
 				if IsBulletEnabled == true then
@@ -532,7 +528,7 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 				Core.Align(OriginalRig["LeftFoot"], FakeRig["Left Leg"], Core.Offsets.Foot)
 			else
 				Core.Align(OriginalRig["UpperTorso"], FakeRig["UpperTorso"])
-				Core.Align(OriginalRig["HumanoidRootPart"], OriginalRig["UpperTorso"], CFrame.new(0,OffsetR15,0))
+				Core.Align(OriginalRig["HumanoidRootPart"], OriginalRig["UpperTorso"])
 				Core.Align(OriginalRig["LowerTorso"], FakeRig["LowerTorso"])
 
 				Core.Align(OriginalRig["RightUpperArm"], FakeRig["RightUpperArm"])
@@ -585,7 +581,7 @@ do --// Death Detectors
 	end))
 end
 
-do
+do -- Bullet Stuff
 	if IsBulletEnabled == true and BulletAfterReanim == true then
 
 	getgenv().PartDisconnecting = true
@@ -643,6 +639,10 @@ do
 	end))
 	
 	end
+end
+
+if IsLoadLibraryEnabled == true then
+	Core.LoadLibrary()
 end
 
 do -- Bug Reporting
