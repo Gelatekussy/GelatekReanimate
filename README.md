@@ -21,7 +21,8 @@ getgenv().GelatekReanimateConfig = {
     ["TorsoFling"] = false,
     ["BulletEnabled"] = true,
     ["LoadLibrary"] = false,
-    ["NewVelocityMethod"] = true,
+    ["NewVelocityMethod"] = false,
+    ["DontBreakHairWelds"] = false,
     ["BulletConfig"] = {
         ["RunAfterReanimate"] = false,
         ["LockBulletOnTorso"] = false
@@ -29,7 +30,6 @@ getgenv().GelatekReanimateConfig = {
 }
 loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Main.lua"))()
 ```
-(PS. If you want to test the bullet, go to Addons/BulletScript.lua)
 
 
 # FAQ:
