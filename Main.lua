@@ -300,6 +300,7 @@ do --// Optimizations/Boosting
 	settings().Physics.DisableCSGv2 = true
 	settings().Physics.UseCSGv2 = false
 	settings().Physics.ThrottleAdjustTime = math.huge
+	settings().Rendering.EagerBulkExecution = true
 	game.Players.LocalPlayer.ReplicationFocus = workspace
 	HiddenProps(workspace, "PhysicsSteppingMethod", Enum.PhysicsSteppingMethod.Fixed)
 	HiddenProps(workspace, "PhysicsSimulationRateReplicator", Enum.PhysicsSimulationRate.Fixed240Hz)
@@ -446,6 +447,7 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 			if Part and Part.Parent then
 				Part.Velocity = Velocity
 				HiddenProps(Part, "NetworkIsSleeping", false)
+				HiddenProps(Part, "NetworkOwnershipRule", Enum.NetworkOwnership.Manual)
 				if BulletR6 and Part.Name ~= BulletR6.Name or BulletR15 and Part.Name ~= BulletR15.Name then
 					Part.AssemblyAngularVelocity = Vector3.new()
 				end
