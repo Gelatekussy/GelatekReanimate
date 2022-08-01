@@ -260,12 +260,6 @@ local OriginalRigChildren = OriginalRig:GetChildren()
 local OriginalHumTracks = OriginalHum:GetPlayingAnimationTracks()
 local PlayerRigType = Core.GetRig(OriginalHum)
 OriginalRig.Archivable = true
-for Index, Object in pairs(OriginalHum:GetChildren()) do
-	if Object:IsA("NumberValue") then
-		Object:Destroy()
-		task.wait() -- Cooldown so it does not trigger in games
-	end
-end
 pcall(function()
 	OriginalRig:FindFirstChild("Local Ragdoll"):Destroy()
 	OriginalRig:FindFirstChild("State Handler"):Destroy()
