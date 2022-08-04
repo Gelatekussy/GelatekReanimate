@@ -459,9 +459,6 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 				Part.Velocity = Velocity
 				HiddenProps(Part, "NetworkIsSleeping", false)
 				HiddenProps(Part, "NetworkOwnershipRule", Enum.NetworkOwnership.Manual)
-				if BulletR6 and Part.Name ~= BulletR6.Name or BulletR15 and Part.Name ~= BulletR15.Name then
-					Part.AssemblyAngularVelocity = Vector3.new()
-				end
 			end
 		elseif Part:IsA("Accessory") then
 			if Part and Part.Parent and Part:FindFirstChild("Handle") then
@@ -476,7 +473,7 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 			PartFling.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		else
 			PartFling.Velocity = Velocity
-			PartFling.RotVelocity = Vector3.new(2000,2000,2000)
+			PartFling.RotVelocity = Vector3.new(800,800,800)
 		end
 	end
 	pcall(function()
