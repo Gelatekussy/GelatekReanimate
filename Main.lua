@@ -400,7 +400,7 @@ Core.CreateSignal("UserInputService", "JumpRequest", function() -- Jumping
 	FakeHum.Jump = true
 	FakeHum.Sit = false
 end)
-
+local BVT = {}
 do --// Extra Properties, Anchor Claim
 	task.wait()
 	for Index,Part in ipairs(OriginalRigDescendants) do
@@ -409,11 +409,19 @@ do --// Extra Properties, Anchor Claim
 			Part.CustomPhysicalProperties = PhysicalProperties.new(0,0,0,0,0)
 			Part.RootPriority = 127
 			Part.Massless = true
-			task.spawn(function() -- Stability
-				Part.Anchored = true
-				task.wait(0.2)
-				Part.Anchored = false
-			end)
+			local ABV = Instance.new("BodyAngularVelocity")
+			ABV.P = 27632763276327632763276327632763276327632763
+			ABV.MaxTorque = Vector3.new(27632763276327632763276327632763276327632763,27632763276327632763276327632763276327632763,27632763276327632763276327632763276327632763)
+			ABV.AngularVelocity = Vector3.new(0,0,0)
+			ABV.Name = "AntiRotation"
+			ABV.Parent = Part
+			local BV = Instance.new("BodyVelocity")
+			BV.P = 27632763276327632763276327632763276327632763
+			BV.MaxForce = Vector3.new(27632763276327632763276327632763276327632763,27632763276327632763276327632763276327632763,27632763276327632763276327632763276327632763)
+			BV.Velocity = Vector3.new(0,0,0)
+			BV.Name = "Stabilition"
+			BV.Parent = Part
+			table.insert(BVT,BV)
 		end
 	end
 end
@@ -442,6 +450,9 @@ if IsPermaDeath == true then
 	Core.PermaDeath(OriginalRig)
 end
 Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, CFraming)
+	for Index,BV in ipairs(BVT) do
+		BV.Velocity = Velocity
+	end
 	for Index,Part in ipairs(OriginalRigDescendants) do
 		if Part:IsA("BasePart") and (not PartFling) then
 			if Part and Part.Parent then
@@ -586,6 +597,9 @@ do -- Bullet Stuff
 	local Players = game:GetService("Players")
 	local Character = workspace:FindFirstChild("GelatekReanimate")
 	local Bullet = getgenv().OGChar:FindFirstChild("Bullet")
+	pcall(function()
+	Bullet.Stabilition:Destroy()
+	end)
 	local Mouse = Players.LocalPlayer:GetMouse()
 	local Power = Instance.new("BodyAngularVelocity")
 	Power.MaxTorque = Vector3.new(math.huge,math.huge,math.huge)
