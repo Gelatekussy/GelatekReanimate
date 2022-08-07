@@ -2,6 +2,7 @@ local Player = game:GetService("Players").LocalPlayer
 local HiddenProps = sethiddenproperty or set_hidden_property or function() end 
 local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
 local SetScript = setscriptable or function() end
+local NetworkChecking = isnetworkowner or is_network_owner or function(Part) return Part.ReceiveAge == 0 end
 local IsPlayerDead = false
 local Events = {}
 local PlayerRigType = ""
@@ -11,6 +12,7 @@ local Velocity = Vector3.new(30,0,0)
 local PartFling = nil
 local Offset = 1
 local R6TorsoVel = Vector3.new(1000,1000,1000)
+local R15Funny = Vector3.new(2500,2500,2500)
 if not getgenv().TableOfEvents then
 	getgenv().TableOfEvents = {}
 end
@@ -115,7 +117,6 @@ local Core = { --// API Used to store functions easier
 		end)
 	end,
 	Align = function(Part0,Part1,OffSetPos,OffsetAngles)
-		local NetworkChecking = isnetworkowner or is_network_owner or function(Part) return Part.ReceiveAge == 0 end
 		local Pos = OffSetPos or CFrame.new(0,0,0)
 		local Angle = OffsetAngles or CFrame.Angles(0,0,0)
 		if NetworkChecking(Part0) == true then
@@ -127,6 +128,8 @@ local Core = { --// API Used to store functions easier
 			if Part:IsA("BasePart") then
 				if Part and Part.Parent then
 					Part.CanCollide = false
+					Part.CanTouch = false
+					Part.CanQuery = false
 				end
 			end
 		end
@@ -146,6 +149,10 @@ local Core = { --// API Used to store functions easier
 		end
 		HiddenProps(Player, "MaximumSimulationRadius", 2763+1e5)
 		HiddenProps(Player, "SimulationRadius", 2763+1e5)
+		if not syn then
+			HiddenProps(Player, "MaximumSimulationRadius", math.huge)
+			setsimulationradius(math.huge)
+		end
 	end,
 	CreateSignal = function(DataModel,Name,Callback)
 		local Service = game:GetService(DataModel)
@@ -243,7 +250,7 @@ local Core = { --// API Used to store functions easier
 	end,
 	CreateOutline = function(Part, Parent)
 		local SelectionBox = Instance.new("SelectionBox")
-		SelectionBox.LineThickness = 0.05
+		SelectionBox.LineThickness = 0.1
 		SelectionBox.Name = "FlingerHighlighter"
 		SelectionBox.Adornee = Part
 		SelectionBox.Parent = Parent
@@ -279,11 +286,6 @@ do --// Fix/Print Configs
 		IsTorsoFling = false
 		warn("Gelatek Reanimate - TorsoFling and BulletEnabled are both true! Disabling TorsoFling")
 	end
-	if R15ToR6 == false and PlayerRigType == "R15" then
-		IsBulletEnabled = false
-		IsTorsoFling = false
-		warn("Gelatek Reanimate - R15ToR6 Is disabled! Disabling TorsoFling/BulletEnabled")
-	end
 	warn("Gelatek Reanimate - Default Animations Disabled: "..tostring(AreAnimationsDisabled))
 	warn("Gelatek Reanimate - R15 To R6: "..tostring(R15ToR6))
 	warn("Gelatek Reanimate - Permament Death: "..tostring(IsPermaDeath))
@@ -294,19 +296,27 @@ do --// Fix/Print Configs
 end
 
 do --// Optimizations/Boosting
-	settings().Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
-	settings().Physics.AllowSleep = false
-	settings().Physics.ForceCSGv2 = false
-	settings().Physics.DisableCSGv2 = true
-	settings().Physics.UseCSGv2 = false
-	settings().Physics.ThrottleAdjustTime = math.huge
-	settings().Rendering.EagerBulkExecution = true
-	game.Players.LocalPlayer.ReplicationFocus = workspace
-	HiddenProps(workspace, "PhysicsSteppingMethod", Enum.PhysicsSteppingMethod.Fixed)
-	HiddenProps(workspace, "PhysicsSimulationRateReplicator", Enum.PhysicsSimulationRate.Fixed240Hz)
-	Core.DisableScripts(OriginalRigChildren)
-	if IsTorsoFling == false then OriginalHum:ChangeState(Enum.HumanoidStateType.Physics) end
-	if setfpscap then setfpscap(60) end
+	pcall(function() -- Based on rumors, sometimes properties cause errors, that's why I am PCalling.
+		Player.ReplicationFocus = workspace
+		settings()["Physics"].PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
+		settings()["Physics"].AllowSleep = false
+		settings()["Physics"].ForceCSGv2 = false
+		settings()["Physics"].DisableCSGv2 = true
+		settings()["Physics"].UseCSGv2 = false
+		settings()["Physics"].ThrottleAdjustTime = math.huge
+		settings()["Rendering"].EagerBulkExecution = true
+		settings()["Rendering"].QualityLevel = 1
+		game.Players.LocalPlayer.ReplicationFocus = workspace
+		HiddenProps(workspace, "PhysicsSteppingMethod", Enum.PhysicsSteppingMethod.Fixed)
+		HiddenProps(workspace, "PhysicsSimulationRateReplicator", Enum.PhysicsSimulationRate.Fixed240Hz)
+		HiddenProps(workspace, "PhysicsSimulationRate", Enum.PhysicsSimulationRate.Fixed240Hz)
+		HiddenProps(workspace, "InterpolationThrottling", Enum.InterpolationThrottlingMode.Disabled)
+		HiddenProps(workspace, "HumanoidOnlySetCollisionsOnStateChange", Enum.HumanoidOnlySetCollisionsOnStateChange.Disabled)
+		HiddenProps(OriginalHum, "InternalBodyScale", Vector3.new(1,1,1) * math.huge)
+		Core.DisableScripts(OriginalRigChildren)
+		if IsTorsoFling == false then OriginalHum:ChangeState(Enum.HumanoidStateType.Physics) end
+		if setfpscap then setfpscap(60) end
+	end)
 end
 
 do --// Dummy Creation
@@ -339,6 +349,8 @@ pcall(function() workspace:FindFirstChildOfClass("Camera").CameraSubject = FakeH
 for Index,Track in ipairs(OriginalHumTracks) do
 	Track:Stop()
 end
+
+
 do --// AccessoryWeld Recreation (Fix Offsets)
 	Core.HatRenamer(OriginalRigChildren)
 	for Index,Part in pairs(OriginalRigChildren) do
@@ -389,13 +401,8 @@ Core.CreateSignal("RunService", "Stepped", function() -- Disable Collisions, Mov
 		Track:Stop()
 	end
 	FakeHum:Move(OriginalHum.MoveDirection, false)
-	if NewVelocityMethod == true then
-		Velocity = Vector3.new(FakeRig["HumanoidRootPart"].CFrame.LookVector.X * 85, FakeRig["HumanoidRootPart"].AssemblyLinearVelocity.Y * 10, FakeRig["HumanoidRootPart"].CFrame.LookVector.Z * 85)
-	else
-		Velocity = Vector3.new(FakeRig["HumanoidRootPart"].AssemblyLinearVelocity.X * 5, 25.32, FakeRig["HumanoidRootPart"].AssemblyLinearVelocity.Z * 5)
-	end
 end)
-
+FakeRig.HumanoidRootPart.CFrame = OriginalRig.HumanoidRootPart.CFrame
 Core.CreateSignal("UserInputService", "JumpRequest", function() -- Jumping
 	FakeHum.Jump = true
 	FakeHum.Sit = false
@@ -406,7 +413,7 @@ do --// Extra Properties, Anchor Claim
 	for Index,Part in ipairs(OriginalRigDescendants) do
 		if Part:IsA("BasePart") then
 			Part:ApplyImpulse(Vector3.new(30,0,0))
-			Part.CustomPhysicalProperties = PhysicalProperties.new(0,0,0,0,0)
+			Part.CustomPhysicalProperties = PhysicalProperties.new(math.huge,math.huge,0,math.huge,0)
 			Part.RootPriority = 127
 			Part.Massless = true
 			local ABV = Instance.new("BodyAngularVelocity")
@@ -421,6 +428,14 @@ do --// Extra Properties, Anchor Claim
 			BV.Velocity = Vector3.new(0,0,0)
 			BV.Name = "Stabilition"
 			BV.Parent = Part
+			local HG = Instance.new("SelectionBox")
+			HG.Adornee = Part
+			HG.Name = "OwnershipCheck"
+			HG.LineThickness = 0.4
+			HG.Transparency = 1
+			HG.Color3 = Color3.fromRGB(125,125,125)
+			HG.Parent = Part
+
 			table.insert(BVT,BV)
 		end
 	end
@@ -439,17 +454,39 @@ task.spawn(function()
 end)
 coroutine.wrap(function() --// Delayless Method; Used for root Y cframing.
 	while task.wait(0.01) do
-		if IsPlayerDead then
-			break
-		end
+		if IsPlayerDead then break end
 		Offset = Offset * -1
+	end
+end)()
+
+
+coroutine.wrap(function() --// Delayless Method; Used for root Y cframing.
+	local lois = FakeRig:FindFirstChild("FlingerHighlighter")
+	while task.wait(0.75) do
+		if IsPlayerDead then break end
+		R15Funny = Vector3.new(0,0,0)
+		lois.Transparency = 1
+		task.wait(0.75)
+		R15Funny = Vector3.new(2500,2500,2500)
+		lois.Transparency = 0
 	end
 end)()
 
 if IsPermaDeath == true then
 	Core.PermaDeath(OriginalRig)
 end
+
+if PlayerRigType == "R15" then
+	Core.CreateSignal("RunService", "Heartbeat", function()
+		Core.Align(OriginalRig["HumanoidRootPart"], OriginalRig["UpperTorso"])
+	end)
+end
 Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, CFraming)
+	if NewVelocityMethod == true then
+		Velocity = Vector3.new(FakeRig["HumanoidRootPart"].CFrame.LookVector.X * 85, FakeRig["HumanoidRootPart"].AssemblyLinearVelocity.Y * 7, FakeRig["HumanoidRootPart"].CFrame.LookVector.Z * 85)
+	else
+		Velocity = Vector3.new(FakeRig["HumanoidRootPart"].AssemblyLinearVelocity.X * 5, 25.32, FakeRig["HumanoidRootPart"].AssemblyLinearVelocity.Z * 5)
+	end
 	for Index,BV in ipairs(BVT) do
 		BV.Velocity = Velocity
 	end
@@ -459,6 +496,13 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 				Part.Velocity = Velocity
 				HiddenProps(Part, "NetworkIsSleeping", false)
 				HiddenProps(Part, "NetworkOwnershipRule", Enum.NetworkOwnership.Manual)
+				if Part:FindFirstChild("OwnershipCheck") then
+					if NetworkChecking(Part) == true then
+						Part:FindFirstChild("OwnershipCheck").Transparency = 1
+					else
+						Part:FindFirstChild("OwnershipCheck").Transparency = 0
+					end
+				end
 			end
 		elseif Part:IsA("Accessory") then
 			if Part and Part.Parent and Part:FindFirstChild("Handle") then
@@ -470,10 +514,9 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 	if PartFling then
 		if PlayerRigType == "R6" then
 			PartFling.Velocity = R6TorsoVel + Velocity
-			PartFling.AssemblyAngularVelocity = Vector3.new(0,0,0)
 		else
-			PartFling.Velocity = Velocity
-			PartFling.RotVelocity = Vector3.new(800,800,800)
+			PartFling.Velocity = Velocity 
+			PartFling.RotVelocity = R15Funny
 		end
 	end
 	pcall(function()
@@ -485,14 +528,18 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 				if HatReplicaR6 and HatReplicaR6:FindFirstChild("Handle") then
 					Core.Align(HatReplicaR6.Handle, FakeRig['Left Arm'], CFrame.new(),CFrame.Angles(math.rad(90),0,0))
 				end
-				if getgenv().PartDisconnecting == false then
 					if BulletR6.Size == Vector3.new(1,2,1) then
-						Core.Align(BulletR6, FakeRig['Left Arm']); Core.Align(OriginalRig['HumanoidRootPart'], FakeRig['HumanoidRootPart'], CFrame.new(0,Offset,0))
+						if getgenv().PartDisconnecting == false then
+							Core.Align(BulletR6, FakeRig['Left Arm'])
+						end
+						Core.Align(OriginalRig['HumanoidRootPart'], FakeRig['HumanoidRootPart'], CFrame.new(0,Offset,0))
 					end
 					if BulletR6.Size == Vector3.new(2,2,1) then
-						Core.Align(BulletR6, FakeRig['HumanoidRootPart'], CFrame.new(0,Offset,0)); Core.Align(OriginalRig['Left Arm'], FakeRig['Left Arm'])
+						if getgenv().PartDisconnecting == false then
+							Core.Align(BulletR6, FakeRig['HumanoidRootPart'], CFrame.new(0,Offset,0))
+						end
+						Core.Align(OriginalRig['Left Arm'], FakeRig['Left Arm'])
 					end
-				end
 			else
 				Core.Align(OriginalRig['Left Arm'], FakeRig['Left Arm']); Core.Align(OriginalRig['HumanoidRootPart'], FakeRig['HumanoidRootPart'], CFrame.new(0,Offset,0))
 			end
@@ -536,11 +583,21 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 				Core.Align(OriginalRig["HumanoidRootPart"], OriginalRig["UpperTorso"])
 				Core.Align(OriginalRig["LowerTorso"], FakeRig["LowerTorso"])
 
+				if IsBulletEnabled == true then
+					if HatReplicaR15 and HatReplicaR15:FindFirstChild("Handle") then
+						Core.Align(HatReplicaR15.Handle, FakeRig['LeftUpperArm'], CFrame.new(0,0.05,0))
+					end
+					if getgenv().PartDisconnecting == false then
+						Core.Align(BulletR15, FakeRig["LeftUpperArm"])
+					end
+				else
+					Core.Align(OriginalRig["LeftUpperArm"], FakeRig["LeftUpperArm"])
+				end
+				
 				Core.Align(OriginalRig["RightUpperArm"], FakeRig["RightUpperArm"])
 				Core.Align(OriginalRig["RightLowerArm"], FakeRig["RightLowerArm"])
 				Core.Align(OriginalRig["RightHand"], FakeRig["RightHand"])
 				
-				Core.Align(OriginalRig["LeftUpperArm"], FakeRig["LeftUpperArm"])
 				Core.Align(OriginalRig["LeftLowerArm"], FakeRig["LeftLowerArm"])
 				Core.Align(OriginalRig["LeftHand"], FakeRig["LeftHand"])
 
@@ -588,37 +645,32 @@ end
 
 do -- Bullet Stuff
 	if IsBulletEnabled == true and BulletAfterReanim == true then
-
+	task.wait(2.5)
 	getgenv().PartDisconnecting = true
-
+	local Held = false
 	local Players = game:GetService("Players")
 	local Character = workspace:FindFirstChild("GelatekReanimate")
 	local Bullet = getgenv().OGChar:FindFirstChild("Bullet")
-	pcall(function()
-	Bullet.Stabilition:Destroy()
-	end)
+	local Highlight = Character:FindFirstChild("FlingerHighlighter")
+	pcall(function() Bullet.AntiRotation:Destroy() end)
 	local Mouse = Players.LocalPlayer:GetMouse()
-	local Power = Instance.new("BodyAngularVelocity")
-	Power.MaxTorque = Vector3.new(math.huge,math.huge,math.huge)
-	Power.P = math.huge
-	Power.AngularVelocity = Vector3.new(25000,25000,25000)
-	Power.Parent = Bullet
+	local Power = Instance.new("BodyThrust")
+	Power.Force = Vector3.new(200,200,200)
 	local BP = Instance.new("BodyPosition")
 	BP.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
-	BP.P = 22500
-	BP.D = 125
+	BP.P = 50000
+	BP.D = 500
 	BP.Position = Bullet.Position
-	BP.Parent = Bullet
-	local Held = false
 	table.insert(getgenv().TableOfEvents, Mouse.Button1Down:Connect(function()
 		Held = true
 	end))
-		
 	table.insert(getgenv().TableOfEvents, Mouse.Button1Up:Connect(function()
 		Held = false
 	end))
-
+	BP.Parent = Bullet
+	Power.Parent = Bullet
 	table.insert(getgenv().TableOfEvents, game:GetService("RunService").Heartbeat:Connect(function()
+		local Hue = tick() % 5/5
 		pcall(function()
 			if Held then
 				if LockBulletOnTorso == true then
@@ -643,6 +695,8 @@ do -- Bullet Stuff
 			else
 			   BP.Position = Character["HumanoidRootPart"].Position
 			end
+			Power.Location = BP.Position
+			Highlight.Color3 = Color3.fromHSV(Hue, 1, 1)
 		end)
 	end))
 	
