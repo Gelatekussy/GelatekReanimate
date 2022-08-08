@@ -462,11 +462,11 @@ end)()
 
 coroutine.wrap(function() --// Delayless Method; Used for root Y cframing.
 	local lois = FakeRig:FindFirstChild("FlingerHighlighter")
-	while task.wait(0.75) do
+	while task.wait(1) do
 		if IsPlayerDead then break end
 		R15Funny = Vector3.new(0,0,0)
 		lois.Transparency = 1
-		task.wait(0.75)
+		task.wait(1)
 		R15Funny = Vector3.new(2500,2500,2500)
 		lois.Transparency = 0
 	end
