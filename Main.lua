@@ -1,3 +1,17 @@
+getgenv().GelatekReanimateConfig = {
+    ["AnimationsDisabled"] = false,
+    ["R15ToR6"] = false,
+    ["PermanentDeath"] = true,
+    ["TorsoFling"] = true,
+    ["BulletEnabled"] = false,
+    ["LoadLibrary"] = false,
+    ["NewVelocityMethod"] = true,
+    ["DontBreakHairWelds"] = false,
+    ["BulletConfig"] = {
+        ["RunAfterReanimate"] = false,
+        ["LockBulletOnTorso"] = false
+    }
+}
 local Player = game:GetService("Players").LocalPlayer
 local HiddenProps = sethiddenproperty or set_hidden_property or function() end 
 local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
@@ -261,12 +275,13 @@ local Core = { --// API Used to store functions easier
 
 --// Rig Variables
 local OriginalRig = Player["Character"]
-local OriginalHum = OriginalRig:WaitForChild("Humanoid")
+local OriginalHum = OriginalRig:FindFirstChildWhichIsA("Humanoid")
 local OriginalRigDescendants = OriginalRig:GetDescendants()
 local OriginalRigChildren = OriginalRig:GetChildren()
 local OriginalHumTracks = OriginalHum:GetPlayingAnimationTracks()
-local PlayerRigType = Core.GetRig(OriginalHum)
+local PlayerRigType = OriginalHum.RigType.Name
 OriginalRig.Archivable = true
+Core.HatRenamer(OriginalRigChildren)
 pcall(function()
 	OriginalRig:FindFirstChild("Local Ragdoll"):Destroy()
 	OriginalRig:FindFirstChild("State Handler"):Destroy()
@@ -363,6 +378,8 @@ do --// AccessoryWeld Recreation (Fix Offsets)
 	end
 end
 
+FakeRig.HumanoidRootPart.CFrame = OriginalRig.HumanoidRootPart.CFrame
+
 do --// Bullet/Collision Fling Checking
 	if IsBulletEnabled == true then
 		getgenv().PartDisconnecting = false
@@ -400,12 +417,6 @@ Core.CreateSignal("RunService", "Stepped", function() -- Disable Collisions, Mov
 	for Index,Track in ipairs(OriginalHumTracks) do
 		Track:Stop()
 	end
-	FakeHum:Move(OriginalHum.MoveDirection, false)
-end)
-FakeRig.HumanoidRootPart.CFrame = OriginalRig.HumanoidRootPart.CFrame
-Core.CreateSignal("UserInputService", "JumpRequest", function() -- Jumping
-	FakeHum.Jump = true
-	FakeHum.Sit = false
 end)
 local BVT = {}
 do --// Extra Properties, Anchor Claim
@@ -453,7 +464,7 @@ task.spawn(function()
 	end
 end)
 coroutine.wrap(function() --// Delayless Method; Used for root Y cframing.
-	while task.wait(0.01) do
+	while task.wait(0.04) do
 		if IsPlayerDead then break end
 		Offset = Offset * -1
 	end
@@ -462,13 +473,15 @@ end)()
 
 coroutine.wrap(function() --// Delayless Method; Used for root Y cframing.
 	local lois = FakeRig:FindFirstChild("FlingerHighlighter")
-	while task.wait(1) do
-		if IsPlayerDead then break end
-		R15Funny = Vector3.new(0,0,0)
-		lois.Transparency = 1
-		task.wait(1)
-		R15Funny = Vector3.new(2500,2500,2500)
-		lois.Transparency = 0
+	if IsBulletEnabled == false and PlayerRigType == "R15" then
+		while task.wait(1) do
+			if IsPlayerDead then break end
+			R15Funny = Vector3.new(0,0,0)
+			lois.Transparency = 1
+			task.wait(1)
+			R15Funny = Vector3.new(2500,2500,2500)
+			lois.Transparency = 0
+		end
 	end
 end)()
 
@@ -513,7 +526,7 @@ Core.CreateSignal("RunService", "Heartbeat", function() -- Main Part (Velocity, 
 	
 	if PartFling then
 		if PlayerRigType == "R6" then
-			PartFling.Velocity = R6TorsoVel + Velocity
+			PartFling.Velocity = R6TorsoVel 
 		else
 			PartFling.Velocity = Velocity 
 			PartFling.RotVelocity = R15Funny
