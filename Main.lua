@@ -1,17 +1,4 @@
-getgenv().GelatekReanimateConfig = {
-    ["AnimationsDisabled"] = false,
-    ["R15ToR6"] = false,
-    ["PermanentDeath"] = true,
-    ["TorsoFling"] = true,
-    ["BulletEnabled"] = false,
-    ["LoadLibrary"] = false,
-    ["NewVelocityMethod"] = true,
-    ["DontBreakHairWelds"] = false,
-    ["BulletConfig"] = {
-        ["RunAfterReanimate"] = false,
-        ["LockBulletOnTorso"] = false
-    }
-}
+
 local Player = game:GetService("Players").LocalPlayer
 local HiddenProps = sethiddenproperty or set_hidden_property or function() end 
 local SimulationRadius = setsimulationradius or set_simulation_radius or function() end 
@@ -228,13 +215,6 @@ local Core = { --// API Used to store functions easier
 					end
 				end	
 			end
-		end
-	end,
-	GetRig = function(Humanoid)
-		if Humanoid.RigType == Enum.HumanoidRigType.R15 then
-			return "R15"
-		else
-			return "R6"
 		end
 	end,
 	HatRenamer = function(Table)
