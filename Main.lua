@@ -45,8 +45,8 @@ do --// Checking
 			["BulletConfig"] = {
 				["RunAfterReanimate"] = false,
 				["LockBulletOnTorso"] = false
+			}
 		}
-	}
 	end
 	if not game:GetService("ReplicatedStorage"):FindFirstChild("GelatekReanimateData") then
 		local Folder = Instance.new("Folder")
