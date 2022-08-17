@@ -25,6 +25,7 @@ getgenv().GelatekReanimateConfig = {
     ["DontBreakHairWelds"] = false,
     ["TeleportBackWhenVoided"] = false,
     ["MoreAccurateOffsets"] = false,
+    ["DetailedCredits"] = false,
     ["Headless"] = false,
     ["BulletConfig"] = {
         ["RunAfterReanimate"] = false,
