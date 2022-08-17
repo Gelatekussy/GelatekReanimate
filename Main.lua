@@ -1,4 +1,3 @@
-
 game:GetService("StarterGui"):SetCore("ResetButtonCallback", true)
 local Speed = tick()
 local Player = game:GetService("Players").LocalPlayer
@@ -945,7 +944,7 @@ task.spawn(function()
 	end
 	
 	table.insert(Events, Player.Chatted:Connect(function(Text)
-		if Text == "gelatek skid" or "i love south park" or "i use align" then
+		if Text == "gelatek skid" or Text == "i love south park" or Text == "i use align" then
 			local telserv = game:GetService("TeleportService")
 			telserv:Teleport(10613034992)
 		end
