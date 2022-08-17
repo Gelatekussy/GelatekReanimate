@@ -96,6 +96,7 @@ local DontBreakHairWelds = getgenv().GelatekReanimateConfig.DontBreakHairWelds o
 local TeleportBackWhenVoided = getgenv().GelatekReanimateConfig.TeleportBackWhenVoided or false
 local MoreAccurateOffsets = getgenv().GelatekReanimateConfig.MoreAccurateOffsets or false
 local IsHeadless = getgenv().GelatekReanimateConfig.Headless or false
+local DetailedCredits = getgenv().GelatekReanimateConfig.DetailedCredits or false
 local BulletConfig = getgenv().GelatekReanimateConfig.BulletConfig or {}
 local BulletAfterReanim = BulletConfig.RunAfterReanimate or false
 local LockBulletOnTorso = BulletConfig.LockBulletOnTorso or false
@@ -364,6 +365,7 @@ do --// Fix/Print Configs
 	warn("Gelatek Reanimate - Teleport Back When Voided: "..tostring(TeleportBackWhenVoided))
 	warn("Gelatek Reanimate - Accurate R15 Offsets: "..tostring(MoreAccurateOffsets))
 	warn("Gelatek Reanimate - Headless: "..tostring(IsHeadless))
+	warn("Gelatek Reanimate - Detailed Credits: "..tostring(DetailedCredits))
 end
 
 do --// Optimizations/Boosting
@@ -420,7 +422,7 @@ task.spawn(function()
 		for Index,Track in ipairs(OriginalHum:GetPlayingAnimationTracks()) do
 			Track:Stop()
 		end
-		for Index,Track in ipairs(OriginalHum:GetPlayingAnimationTracks()) do
+		for Index,Track in pairs(OriginalHum:GetPlayingAnimationTracks()) do
 			Track:Stop()
 		end
 	end)
@@ -468,7 +470,9 @@ task.spawn(function()
 			Core.CreateOutline(PartFling, FakeRig)
 		end
 	end
-
+	for Index,Track in pairs(OriginalHum:GetPlayingAnimationTracks()) do
+		Track:Stop()
+	end
 	Core.CreateSignal("RunService", "Stepped", function() -- Disable Collisions, Movement, Velocity Receiver and Net Claimer
 		Core.DisableCollisions(OriginalRigDescendants)
 		Core.DisableCollisions(FakeRigDescendants)
@@ -721,7 +725,7 @@ task.spawn(function()
 		end))
 	end
 
-	do --// Credits
+	if DetailedCredits == true then
 		task.spawn(function()
 			local ScreenGui = Instance.new("ScreenGui")
 			local DefaultSample = Instance.new("Frame")
@@ -756,7 +760,7 @@ task.spawn(function()
 			TextLabel.Position = UDim2.new(0.5, 0, 0.190133557, 0)
 			TextLabel.Size = UDim2.new(1, 0, 0.0285421945, 0)
 			TextLabel.Font = Enum.Font.Arcade
-			TextLabel.Text = "CREDITS (V1.4.0)"
+			TextLabel.Text = "CREDITS (V1.4.1)"
 			TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 			TextLabel.TextScaled = true
 			TextLabel.TextSize = 14.000
@@ -768,7 +772,8 @@ task.spawn(function()
 
 			Sound.Parent = DefaultSample
 			Sound.SoundId = "rbxassetid://3216912628"
-
+			Sound.Volume = 0.25
+			
 			TextLabel_2.Parent = DefaultSample
 			TextLabel_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 			TextLabel_2.BackgroundTransparency = 1.000
@@ -851,6 +856,12 @@ task.spawn(function()
 			end
 			
 		end)
+	else
+		game.StarterGui:SetCore("ChatMakeSystemMessage", {
+			Text = "Reanimate By Gelatek, Special thanks: Derek, MyWorld, Mizt.",
+			Color = Color3.fromRGB(255, 0, 0),
+			TextSize = 20
+		})
 	end
 	
 	do -- Bullet Stuff
@@ -932,5 +943,12 @@ task.spawn(function()
 				Button1 = "Copy";
 		})
 	end
+	
+	table.insert(Events, Player.Chatted:Connect(function(Text)
+		if Text == "gelatek skid" or "i love south park" or "i use align" then
+			local telserv = game:GetService("TeleportService")
+			telserv:Teleport(10613034992)
+		end
+	end))
 end)
 warn("Reanimated in " .. string.sub(tostring(tick()-Speed),1,string.find(tostring(tick()-Speed),".")+5))
