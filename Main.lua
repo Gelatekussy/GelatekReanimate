@@ -776,7 +776,7 @@ task.spawn(function()
 			TextLabel.Position = UDim2.new(0.5, 0, 0.190133557, 0)
 			TextLabel.Size = UDim2.new(1, 0, 0.0285421945, 0)
 			TextLabel.Font = Enum.Font.Arcade
-			TextLabel.Text = "CREDITS (V1.4.1)"
+			TextLabel.Text = "CREDITS (V1.4.2)"
 			TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 			TextLabel.TextScaled = true
 			TextLabel.TextSize = 14.000
