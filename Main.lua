@@ -1,5 +1,6 @@
 game:GetService("StarterGui"):SetCore("ResetButtonCallback", true)
 local Speed = tick()
+local AdditionalStuff = getgenv().AdditionalStuff or false -- This is only for my hub, nothing should affect when it's true but i recommend not. (it will just create a folder with hats)
 local Player = game:GetService("Players").LocalPlayer
 local SpawnPoint = workspace:FindFirstChildOfClass("SpawnLocation",true) and workspace:FindFirstChildOfClass("SpawnLocation",true) or CFrame.new(0,20,0)
 do --// Checking
@@ -12,7 +13,7 @@ do --// Checking
 			})
 			local Sound = Instance.new("Sound")
 			Sound.SoundId = "rbxassetid://5914602124"
-			Sound.Parent = game.CoreGui
+			Sound.Parent = game:GetService("CoreGui")
 			Sound:Play()
 			task.wait(3)
 			Sound:Destroy()
@@ -43,6 +44,7 @@ do --// Checking
 			["Headless"] = false,
 			["BulletConfig"] = {
 				["RunAfterReanimate"] = false,
+				["BuffedBodyPosition"] = false,
 				["LockBulletOnTorso"] = false
 			}
 		}
@@ -56,7 +58,7 @@ do --// Checking
 		Clone.Parent = Folder
 		local IAmNotSorryOne = game:GetObjects("rbxassetid://48474313")[1]
 		IAmNotSorryOne.Parent = Folder
-		IAmNotSorryOne.Handle.Color = Color3.fromRGB(255,0,0)
+		IAmNotSorryOne.Handle.Color = Color3.fromRGB(235,50,50)
 		IAmNotSorryOne.Handle.Transparency = 0.15
 		local IAmNotSorryOne = game:GetObjects("rbxassetid://5973840187")[1]
 		IAmNotSorryOne.Parent = Folder
@@ -78,6 +80,7 @@ local Velocity = Vector3.new(30,0,0)
 local PartFling = nil
 local Offset = 1
 local OffsetR15 = 0.024
+local FakeHatsFolder = nil
 local R6TorsoVel = Vector3.new(1000,1000,1000)
 local R15Funny = Vector3.new(2500,2500,2500)
 if not getgenv().TableOfEvents then
@@ -239,6 +242,11 @@ local Core = { --// API Used to store functions easier
 		for i,v in ipairs(getgenv().TableOfEvents) do
 			v:Disconnect()
 		end
+		if (getgenv and getgenv().ShibaHubConfig and getgenv().ShibaHubConfig.TableOfEvents) then
+			for i,v in pairs(getgenv().ShibaHubConfig.TableOfEvents) do
+				v:Disconnect()
+			end
+		end
 	end,	
 	PermaDeath = function(Model)
 		task.spawn(function()
@@ -302,7 +310,7 @@ local Core = { --// API Used to store functions easier
 	end,
 	CreateOutline = function(Part, Parent)
 		local SelectionBox = Instance.new("SelectionBox")
-		SelectionBox.LineThickness = 0.1
+		SelectionBox.LineThickness = 0.06
 		SelectionBox.Name = "FlingerHighlighter"
 		SelectionBox.Adornee = Part
 		SelectionBox.Parent = Parent
@@ -314,6 +322,11 @@ local Data = game:GetService("ReplicatedStorage"):FindFirstChild("GelatekReanima
 local OriginalRig = Player["Character"]
 local OriginalHum = OriginalRig:FindFirstChildWhichIsA("Humanoid")
 local PlayerRigType = OriginalHum.RigType.Name
+if AdditionalStuff == true then
+	FakeHatsFolder = Instance.new("Folder")
+	FakeHatsFolder.Name = "FakeHats"
+	FakeHatsFolder.Parent = OriginalRig
+end
 if IsBulletEnabled == true then
 	if PlayerRigType == "R6" then
 		if IsPermaDeath == false then
@@ -375,7 +388,7 @@ do --// Optimizations/Boosting
 		settings()["Physics"].ForceCSGv2 = false
 		settings()["Physics"].DisableCSGv2 = true
 		settings()["Physics"].UseCSGv2 = false
-		settings()["Physics"].ThrottleAdjustTime = math.huge
+		settings()["Physics"].ThrottleAdjustTime = -math.huge
 		settings()["Rendering"].QualityLevel = 1
 		game.Players.LocalPlayer.ReplicationFocus = workspace
 		HiddenProps(workspace, "PhysicsSteppingMethod", Enum.PhysicsSteppingMethod.Fixed)
@@ -434,6 +447,10 @@ task.spawn(function()
 				FakeHats1.Handle.Transparency = 1
 				Core.ReCreateWelds(FakeRig, FakeHats1)
 				FakeHats1.Parent = FakeRig
+				if FakeHatsFolder then
+					local FakeHats2 = FakeHats1:Clone()
+					FakeHats2.Parent = FakeHatsFolder
+				end
 			end
 		end
 	end
@@ -865,7 +882,6 @@ task.spawn(function()
 	
 	do -- Bullet Stuff
 		if IsBulletEnabled == true and BulletAfterReanim == true then
-		OriginalHum:ChangeState(16)
 		task.wait(2.5)
 		getgenv().PartDisconnecting = true
 		local Held = false
@@ -874,8 +890,14 @@ task.spawn(function()
 		local Bullet = getgenv().OGChar:FindFirstChild("Bullet")
 		local Highlight = Character:FindFirstChild("FlingerHighlighter")
 		pcall(function() Bullet.AntiRotation:Destroy() end)
+		Bullet.Transparency = 1
 		local Mouse = Players.LocalPlayer:GetMouse()
 		local Power = Instance.new("BodyAngularVelocity")
+		local Position = Instance.new("BodyPosition")
+		Position.Position = Bullet.Position
+		Position.MaxForce = Vector3.new(math.huge,math.huge,math.huge)
+		Position.P = 25000
+		Position.D = 200
 		Power.MaxTorque = Vector3.new(math.huge,math.huge,math.huge)
 		Power.P = math.huge
 		Power.AngularVelocity = Vector3.new(20000,20000,20000)
@@ -886,35 +908,43 @@ task.spawn(function()
 			Held = false
 		end))
 		Power.Parent = Bullet
+		Position.Parent = Bullet
+		coroutine.wrap(function()
+			while true do
+				Position.P = 25000
+				task.wait(5)
+				Position.P = 50000
+				task.wait(1)
+			end
+		end)()
 		table.insert(getgenv().TableOfEvents, game:GetService("RunService").Heartbeat:Connect(function()
 			local Hue = tick() % 5/5
+			Bullet.Rotation = Vector3.new()
 			pcall(function()
 				if Held then
 					if LockBulletOnTorso == true then
 						if Mouse.Target:IsA("BasePart") then
 							if Players:GetPlayerFromCharacter(Mouse.Target.Parent) then
 								if Mouse.Target.Parent.Name ~= Players.LocalPlayer.Name then
-									Core.Align(Bullet, Mouse.Target.Parent:FindFirstChild("Head"), CFrame.new(0,-1.5,0))
+									local Target = Mouse.Target.Parent:FindFirstChild("Torso") or Mouse.Target.Parent:FindFirstChild("Head") or Mouse.Target.Parent:FindFirstChildWhichIsA("BasePart")
+									Position.Position = Target.Position
 								end
 							elseif Players:GetPlayerFromCharacter(Mouse.Target.Parent.Parent) then
 								if Mouse.Target.Parent.Parent.Name ~= Players.LocalPlayer.Name then
-								   Core.Align(Bullet, Mouse.Target.Parent.Parent:FindFirstChild("Head"), CFrame.new(0,-1.5,0))
+									local Target = Mouse.Target.Parent.Parent:FindFirstChild("Torso") or Mouse.Target.Parent.Parent:FindFirstChild("Head") or Mouse.Target.Parent.Parent:FindFirstChildWhichIsA("BasePart")
+									Position.Position = Target.Position
 								end
 							else
-								if NetworkChecking(Bullet) == true then
-									Bullet.CFrame = Mouse.Hit
-								end
+								Position.Position = Mouse.Hit.Position
 							end
 						end
 					else
 						if Mouse.Target:IsA("BasePart") then
-							if NetworkChecking(Bullet) == true then
-								Bullet.CFrame = Mouse.Hit
-							end
+							Position.Position = Mouse.Hit.Position
 						end
 					end
 				else
-				   Core.Align(Bullet, Character["HumanoidRootPart"], CFrame.new(0,8,0))
+				  Position.Position = Character["HumanoidRootPart"].Position
 				end
 				Highlight.Color3 = Color3.fromHSV(Hue, 1, 1)
 			end)
@@ -935,11 +965,11 @@ task.spawn(function()
 		end
 		Bindable.OnInvoke = Copy
 		game.StarterGui:SetCore("SendNotification",{
-				Title = "Found A Bug?";
-				Text = "Click copy to get discord invite where you can report a bug! otherwise ignore.";
-				Duration = 10;
-				Callback = Bindable,
-				Button1 = "Copy";
+			Title = "Found A Bug?";
+			Text = "Click copy to get discord invite where you can report a bug! otherwise ignore.";
+			Duration = 10;
+			Callback = Bindable,
+			Button1 = "Copy";
 		})
 	end
 	
