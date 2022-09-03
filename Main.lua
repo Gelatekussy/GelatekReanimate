@@ -205,11 +205,11 @@ local Core = { --// API Used to store functions easier
 				SetScript(Player, "SimulationRadius", true)
 			end)
 		end
-		Player.MaximumSimulationRadius = 9e9
+		Player.MaximumSimulationRadius = 10000000
 		if not syn then
-			SimulationRadius(9e9)
+			SimulationRadius(10000000)
 		else
-			HiddenProps(Player, "SimulationRadius", 9e9)
+			HiddenProps(Player, "SimulationRadius", 10000000)
 		end
 	end,
 	CreateSignal = function(DataModel,Name,Callback)
