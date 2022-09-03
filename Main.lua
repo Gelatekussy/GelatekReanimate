@@ -246,6 +246,9 @@ local Core = { --// API Used to store functions easier
 			for i,v in pairs(getgenv().ShibaHubConfig.TableOfEvents) do
 				v:Disconnect()
 			end
+			getgenv().ShibaHubConfig["ScriptStopped"] = true
+			task.wait()
+			getgenv().ShibaHubConfig["ScriptStopped"] = false
 		end
 	end,	
 	PermaDeath = function(Model)
