@@ -250,6 +250,9 @@ local Core = { --// API Used to store functions easier
 			task.wait()
 			getgenv().ShibaHubConfig["ScriptStopped"] = false
 		end
+		if workspace:FindFirstChild("AntiScriptRun") then
+			workspace:FindFirstChild("AntiScriptRun"):Destroy()
+		end
 	end,	
 	PermaDeath = function(Model)
 		task.spawn(function()
