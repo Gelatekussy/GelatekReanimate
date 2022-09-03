@@ -242,13 +242,15 @@ local Core = { --// API Used to store functions easier
 		for i,v in ipairs(getgenv().TableOfEvents) do
 			v:Disconnect()
 		end
-		if (getgenv and getgenv().ShibaHubConfig and getgenv().ShibaHubConfig.TableOfEvents) then
+		if getgenv and getgenv().ShibaHubConfig then
 			for i,v in pairs(getgenv().ShibaHubConfig.TableOfEvents) do
 				v:Disconnect()
 			end
-			getgenv().ShibaHubConfig["ScriptStopped"] = true
-			task.wait()
-			getgenv().ShibaHubConfig["ScriptStopped"] = false
+			task.spawn(function()
+				getgenv().ShibaHubConfig["ScriptStopped"] = true
+				wait(0.5)
+				getgenv().ShibaHubConfig["ScriptStopped"] = false
+			end)
 		end
 		if workspace:FindFirstChild("AntiScriptRun") then
 			workspace:FindFirstChild("AntiScriptRun"):Destroy()
