@@ -317,6 +317,7 @@ local Core = { --// API Used to store functions easier
 	CreateOutline = function(Part, Parent)
 		local SelectionBox = Instance.new("SelectionBox")
 		SelectionBox.LineThickness = 0.06
+		SelectionBox.Transparency = 0.5
 		SelectionBox.Name = "FlingerHighlighter"
 		SelectionBox.Adornee = Part
 		SelectionBox.Parent = Parent
