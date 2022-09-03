@@ -248,7 +248,7 @@ local Core = { --// API Used to store functions easier
 			end
 			task.spawn(function()
 				getgenv().ShibaHubConfig["ScriptStopped"] = true
-				wait(0.5)
+				wait(0.16368938682368236326823864238956894376978345)
 				getgenv().ShibaHubConfig["ScriptStopped"] = false
 			end)
 		end
