@@ -397,7 +397,7 @@ do --// Optimizations/Boosting
 		settings()["Physics"].ForceCSGv2 = false
 		settings()["Physics"].DisableCSGv2 = true
 		settings()["Physics"].UseCSGv2 = false
-		settings()["Physics"].ThrottleAdjustTime = math.huge
+		settings()["Physics"].ThrottleAdjustTime = -math.huge
 		settings()["Rendering"].QualityLevel = 1
 		game.Players.LocalPlayer.ReplicationFocus = workspace
 		HiddenProps(workspace, "PhysicsSteppingMethod", Enum.PhysicsSteppingMethod.Fixed)
