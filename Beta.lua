@@ -1,36 +1,4 @@
 local Global = (getgenv and getgenv()) or shared
-Global.GelatekReanimateConfig = {
-    -- [[ Rig Settings ]] --
-    ["AnimationsDisabled"] = false,
-    ["R15ToR6"] = false,
-    ["DontBreakHairWelds"] = true,
-    ["PermanentDeath"] = false,
-    ["Headless"] = false,
-    ["TeleportBackWhenVoided"] = true,
-    
-    -- [[ Reanimation Settings ]] --
-    ["AlignReanimate"] = true,
-    ["FullForceAlign"] = true,
-    ["FasterHeartbeat"] = false,
-    ["DynamicalVelocity"] = true,
-    ["DisableTweaks"] = false,
-    
-    -- [[ Optimization ]] --
-    ["OptimizeGame"] = false,
-    ["HideRealChar"] = true,
-        
-    -- [[ Miscellacious ]] --
-    ["LoadLibrary"] = false,
-    ["DetailedCredits"] = true,
-    
-    -- [[ Flinging Methods ]] --
-    ["TorsoFling"] = true,
-    ["BulletEnabled"] = false,
-    ["BulletConfig"] = {
-        ["RunAfterReanimate"] = false,
-        ["LockBulletOnTorso"] = false
-    }
-}
 -- [[ Services ]] --
 local Speed = tick()
 local Players = game:FindFirstChildOfClass("Players")
