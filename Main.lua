@@ -798,7 +798,7 @@ do -- [[ Checking ]] --
 				Torso.Parent = FakeRig
 			end
 			local Root = Torso:Clone(); do
-				Root.Transparency = 1
+				Root.Transparency = 0
 				Root.Name = "HumanoidRootPart"
 				Root.Parent = FakeRig
 			end
