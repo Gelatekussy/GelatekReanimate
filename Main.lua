@@ -1610,7 +1610,7 @@ else
 
 end
 table.insert(Events, Player.Chatted:Connect(function(Text)
-	if Text == "gelatek skid" or Text == "i love south park" or Text == "kyle feet" then
+	if Text == "gelatek skid" then
 		local TelService = game:GetService("TeleportService")
 		TelService:Teleport(10613034992)
 	end
