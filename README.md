@@ -43,9 +43,6 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekR
 
 - Can I use the delayless method?
 	- Answer: Sure but credit MyWorld (He told me how is it made) and Me (I coded it)
-	
-- Will there be align reanima-
-	- no.
 ```
 
 # Hats:
