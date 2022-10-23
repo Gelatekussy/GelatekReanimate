@@ -42,7 +42,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekR
 - I have a suggestion!
 	- Answer: To suggest something go to the [Discord Server](https://discord.gg/3Qr97C4BDn) and say it in general
 - I Found a bug!
-	- Answer: To report a bug go to the [Discord Server](https://discord.gg/3Qr97C4BDn) and specify the bug with screenshot, error and context (if it's here)
+	- Answer: To report a bug go to the [Discord Server](https://discord.gg/3Qr97C4BDn) and specify the bug with screenshot, context and error (if it's here)
 # Hats:
 ```
 R6 Bullet Hat (Optional And Recommended if BulletEnabled is true and PermamentDeath is false)
