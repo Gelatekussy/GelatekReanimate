@@ -14,19 +14,34 @@ This is the one of the best reanimate I ever made, it's stablest and less jitter
 
 # Code:
 ```lua
-getgenv().GelatekReanimateConfig = {
+local Global = (getgenv and getgenv()) or shared
+Global.GelatekReanimateConfig = {
+    -- [[ Rig Settings ]] --
     ["AnimationsDisabled"] = false,
     ["R15ToR6"] = false,
+    ["DontBreakHairWelds"] = true,
     ["PermanentDeath"] = false,
-    ["TorsoFling"] = false,
-    ["BulletEnabled"] = false,
-    ["LoadLibrary"] = false,
-    ["NewVelocityMethod"] = false,
-    ["DontBreakHairWelds"] = false,
-    ["TeleportBackWhenVoided"] = false,
-    ["MoreAccurateOffsets"] = false,
-    ["DetailedCredits"] = false,
     ["Headless"] = false,
+    ["TeleportBackWhenVoided"] = true,
+    
+    -- [[ Reanimation Settings ]] --
+    ["AlignReanimate"] = true,
+    ["FullForceAlign"] = true,
+    ["FasterHeartbeat"] = false,
+    ["DynamicalVelocity"] = true,
+    ["DisableTweaks"] = false,
+    
+    -- [[ Optimization ]] --
+    ["OptimizeGame"] = false,
+    ["HideRealChar"] = true,
+        
+    -- [[ Miscellacious ]] --
+    ["LoadLibrary"] = false,
+    ["DetailedCredits"] = true,
+    
+    -- [[ Flinging Methods ]] --
+    ["TorsoFling"] = true,
+    ["BulletEnabled"] = false,
     ["BulletConfig"] = {
         ["RunAfterReanimate"] = false,
         ["LockBulletOnTorso"] = false
