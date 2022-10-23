@@ -59,3 +59,4 @@ https://www.roblox.com/catalog/5973840187/Left-Sniper-Shoulder
 - ProductionTakeOne: Properties, Optimizations, Help and stuff.
 - Mizt: Hat Renamer/Fixer, Inspiration
 - MyWorld: Help With Delayless and Jitterless
+- 4eyedfool: Faster Heartbeat
