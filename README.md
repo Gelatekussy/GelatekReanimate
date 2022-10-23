@@ -37,13 +37,10 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekR
 
 
 # FAQ:
-```
 - Can I use this reanimate?
 	- Answer: Yes, The Credits are coded in so you don't have to credit by yourself!
-
-- Can I use the delayless method?
-	- Answer: Sure but credit MyWorld (He told me how is it made) and Me (I coded it)
-```
+- I have a suggestion!
+	- Answer: To suggest something go to the [Discord Server](https://discord.gg/3Qr97C4BDn)
 
 # Hats:
 ```
