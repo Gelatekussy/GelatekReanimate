@@ -955,7 +955,6 @@ local CharacterDescendants = Character:GetDescendants()
 local CharacterChildren = Character:GetChildren()
 local RigType = Humanoid.RigType.Name
 Character.Archivable = true
-RootPart.Transparency = 0
 if Character:FindFirstChild("Animate") then -- [[ Disable Animations ]] --
 	Character:FindFirstChild("Animate").Disabled = true
 	for _, Track in next, Humanoid:GetPlayingAnimationTracks() do
