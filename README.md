@@ -19,28 +19,27 @@ Global.GelatekReanimateConfig = {
     -- [[ Rig Settings ]] --
     ["AnimationsDisabled"] = false,
     ["R15ToR6"] = false,
-    ["DontBreakHairWelds"] = true,
+    ["DontBreakHairWelds"] = false,
     ["PermanentDeath"] = false,
     ["Headless"] = false,
-    ["TeleportBackWhenVoided"] = true,
+    ["TeleportBackWhenVoided"] = false,
     
     -- [[ Reanimation Settings ]] --
-    ["AlignReanimate"] = true,
-    ["FullForceAlign"] = true,
+    ["AlignReanimate"] = false,
+    ["FullForceAlign"] = false,
     ["FasterHeartbeat"] = false,
-    ["DynamicalVelocity"] = true,
+    ["DynamicalVelocity"] = false,
     ["DisableTweaks"] = false,
     
     -- [[ Optimization ]] --
     ["OptimizeGame"] = false,
-    ["HideRealChar"] = true,
-        
+
     -- [[ Miscellacious ]] --
     ["LoadLibrary"] = false,
-    ["DetailedCredits"] = true,
+    ["DetailedCredits"] = false,
     
     -- [[ Flinging Methods ]] --
-    ["TorsoFling"] = true,
+    ["TorsoFling"] = false,
     ["BulletEnabled"] = false,
     ["BulletConfig"] = {
         ["RunAfterReanimate"] = false,
