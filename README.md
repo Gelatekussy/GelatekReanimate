@@ -56,5 +56,5 @@ https://www.roblox.com/catalog/5973840187/Left-Sniper-Shoulder
 - Gelatek: Founder, Main Coder
 - ProductionTakeOne: Properties, Optimizations, Help and stuff.
 - Mizt: Hat Renamer/Fixer, Inspiration
-- MyWorld: Help With Delayless and Jitterless
+- MyWorld: Help With Delayless
 - 4eyedfool: Faster Heartbeat
