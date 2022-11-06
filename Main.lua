@@ -9,7 +9,7 @@ local RunService = game:FindFirstChildOfClass("RunService")
 local StarterGui = game:FindFirstChildOfClass("StarterGui")
 local CoreGui = game:FindFirstChildOfClass("CoreGui")
 local Player = Players.LocalPlayer
-
+local HubMode = Global.HubMode or false
 -- [[ Variables ]] --
 local Events = {}
 local BodyVels = {}
@@ -663,11 +663,13 @@ end
 do -- [[ Boosting Tweaks/Claims ]] --
 	for _, v in pairs(CharacterDescendants) do
 		if v:IsA("BasePart") then
+			v:ApplyAngularImpulse(Vector3.new())
 			v:ApplyImpulse(Velocity)
-			v:ApplyAngularImpulse(Velocity)
-			v.CustomPhysicalProperties = PhysicalProperties.new(0,0,0,0,0)
 			v.RootPriority = 127
-			v.Massless = true
+			if HubMode == false then
+				v.CustomPhysicalProperties = PhysicalProperties.new(0,0,0,0,0)	
+				v.Massless = true
+			end
 			if AlignReanimate == false then -- causes weird ass movement
 				local ABV = Instance.new("BodyAngularVelocity")
 				ABV.P = 1/0
