@@ -1042,7 +1042,7 @@ if DetailedCredits == true then
 
 
 		MIZT
-		Hat Renamer, Inspiration, R6 Rig
+		Hat Renamer, Inspiration
 		
 		
 		4EYEDFOOL
