@@ -759,9 +759,9 @@ table.insert(Events, ArtificalEvent:Connect(function()
 		if v:IsA("BasePart") then
 			if v and v.Parent then
 				if CollideFlingPart and v.Name ~= CollideFlingPart.Name then
-					v.Velocity = Velocity
+					v.AssemblyLinearVelocity = Velocity
 				elseif not CollideFlingPart then
-					v.Velocity = Velocity
+					v.AssemblyLinearVelocity = Velocity
 				end
 			end
 		end
@@ -772,12 +772,12 @@ table.insert(Events, ArtificalEvent:Connect(function()
 	if IsTorsoFling == true and CollideFlingPart then
 		if RigType == "R6" then
 			if FakeHum.MoveDirection.Magnitude < 0.1 then
-				CollideFlingPart.Velocity = Velocity
+				CollideFlingPart.AssemblyLinearVelocity = Velocity
 			elseif FakeHum.MoveDirection.Magnitude > 0.1 then
-				CollideFlingPart.Velocity = Vector3.new(1000,1000,1000)
+				CollideFlingPart.AssemblyLinearVelocity = Vector3.new(1000,1000,1000)
 			end
 		else
-			CollideFlingPart.Velocity = Velocity
+			CollideFlingPart.AssemblyLinearVelocity = Velocity
 			if FakeHum.MoveDirection.Magnitude < 0.1 then
 				CollideFlingPart.RotVelocity = Vector3.new()
 			elseif FakeHum.MoveDirection.Magnitude > 0.1 then
