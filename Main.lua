@@ -23,23 +23,9 @@ local isnetworkowner = isnetworkowner or function(Part) return Part.ReceiveAge =
 local sethiddenproperty = sethiddenproperty or set_hidden_property or function() end 
 	
 -- [[ Checking Settings ]] --
-pcall(function() setfflag("NewRunServiceSignals", "true") end) 
-pcall(function() setfflag("NewRunServiceSignals", true) end)
-
-
 local Config = Global.GelatekReanimateConfig or {}
 Global.TableOfEvents = {}
---[[
-	TODO:
-	- Bullet Reanimate Code (Done)
-	- Optimizations (Done)
-	- Torso Fling (Done)
-	- Anti Void (Done)
-	- Delayless (Done)
-	- Credits Thing (Done)
-	- Readd Secret (Done)
-	- Shiba Hub Support (fuck it)
-]]
+
 --[[ Ownership ]] --
 local DisableTweaks = Config.DisableTweaks or false -- Disables Net-Boosting Tweaks
 local DynamicalVelocity = Config.DynamicalVelocity or false -- Enables Dynamical/Movement Velocity
