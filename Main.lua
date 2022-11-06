@@ -145,7 +145,7 @@ end
 local ReCreateWelds = function(Model, Accessory) 
 	-- [[ Inspiration from DevForum Post made by admin. ]] --
 	local Handle = Accessory:FindFirstChild("Handle")
-	pcall(function() Handle:FindFirstChild("AccessoryWeld"):Destroy() end)
+	pcall(function() Handle:FindFirstChildOfClass("Weld"):Destroy() end)
 	local NewWeld = Instance.new("Weld")
 	NewWeld.Name = "AccessoryWeld"
 	NewWeld.Part0 = Handle
@@ -161,6 +161,7 @@ local ReCreateWelds = function(Model, Accessory)
 	Handle.CFrame = NewWeld.Part1.CFrame * NewWeld.C1 * NewWeld.C0:Inverse()
 	NewWeld.Parent = Accessory.Handle
 end
+
 local ArtificalEvent; do
 	-- [[ Artifical Event; original by 4eyedfool; "Borrowing" From One.]] --
 	local EventList = {"PreRender","PreAnimation","PreSimulation","PostSimulation"}
@@ -412,6 +413,10 @@ local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 local CharacterDescendants = Character:GetDescendants()
 local CharacterChildren = Character:GetChildren()
+local FakeHats = Instance.new("Folder"); do
+	FakeHats.Name = "FakeHats"
+	FakeHats.Parent = Character
+end
 local RigType = Humanoid.RigType.Name
 Character.Archivable = true
 if Character:FindFirstChild("Animate") then -- [[ Disable Animations ]] --
@@ -462,6 +467,7 @@ local FakeRig; do -- [[ Rig Maker ]] --
 	FakeRig.HumanoidRootPart.CFrame = RootPart.CFrame
 end
 local FakeHum = FakeRig:FindFirstChildOfClass("Humanoid")
+Character.Parent = FakeRig
 do --[[ Rename Hats (By Mizt) / AccessoryWeld Recreation (Fix Offsets) ]] --
 	local HatsNames = {}
 	for Index, Accessory in ipairs(CharacterDescendants) do
@@ -497,7 +503,7 @@ do --[[ Rename Hats (By Mizt) / AccessoryWeld Recreation (Fix Offsets) ]] --
 	end
 end
 local FakeRigDescendants = FakeRig:GetDescendants()
-Character.Parent = FakeRig
+
 -- Bullet System
 local BulletHatInfo
 local BulletPartInfo
@@ -644,6 +650,15 @@ if IsPermaDeath == true then
 		warn("Godmoded in: " .. string.sub(tostring(tick()-Speed),1,string.find(tostring(tick()-Speed),".")+5))
 	end)
 end
+-- fakehats for stop script for my hub
+for _, v in pairs(Character:GetChildren()) do
+	if v:IsA("Accessory") then
+		local FakeHats1 = v:Clone()
+		FakeHats1.Handle.Transparency = 1
+		ReCreateWelds(FakeRig, FakeHats1)
+		FakeHats1.Parent = FakeHats
+	end
+end
 
 do -- [[ Boosting Tweaks/Claims ]] --
 	for _, v in pairs(CharacterDescendants) do
@@ -703,6 +718,7 @@ table.insert(Events, RunService.PreSimulation:Connect(function()
 end))
 
 local function Death()
+	Global.Stopped = true
     Character.Parent = workspace
     Player.Character = workspace:FindFirstChild(Character.Name)
     Humanoid:ChangeState(15)
@@ -715,7 +731,13 @@ local function Death()
     end
     if FakeRig then FakeRig:Destroy() end
     FakeRig = nil
+    task.wait(0.15)
+    if game:FindFirstChildOfClass("TestService"):FindFirstChild("ScriptCheck") then
+		game:FindFirstChildOfClass("TestService"):FindFirstChild("ScriptCheck"):Destroy()
+	end
+    Global.Stopped = false
 end
+	
 table.insert(Events, ArtificalEvent:Connect(function()
 	if FakeRig.HumanoidRootPart.Position.Y <= workspace.FallenPartsDestroyHeight + 70 then
 		if TeleportBackWhenVoided == false then
