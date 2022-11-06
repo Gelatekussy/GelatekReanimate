@@ -200,7 +200,7 @@ do -- [[ Checking ]] --
 	if not game:IsLoaded() then
 		game.Loaded:Wait()
 	end
-	if workspace:FindFirstChild("GelatekReanimate") then
+	if Player.Character.Name == "GelatekReanimate" then
 		Notification("Error!", "Reanimate Is Already Running!", 3)
 		return nil
 	end
@@ -210,6 +210,8 @@ do -- [[ Checking ]] --
 	end
     if Player.Name == "aliali1974" then
 		Notification("Error!", "Please Kill Yourself Com. You are a fucking failure to the society, Your innocence has been lost. GTFO. ", 3)
+		task.wait(4)
+		Player:Kick("kys")
 		return nil
 	end
 	if not TestService:FindFirstChild("GelatekReanimateData") then
