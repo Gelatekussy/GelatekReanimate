@@ -593,7 +593,7 @@ if DynamicalVelocity == true then
 			Velocity = Vector3.new(FakeRig["HumanoidRootPart"].CFrame.LookVector.X * 85, FakeRig["Head"].Velocity.Y * 4, FakeRig["HumanoidRootPart"].CFrame.LookVector.Z * 85)
 		else
 			if FakeRig.HumanoidRootPart.Velocity.Y > 0 and FakeRig.HumanoidRootPart.Velocity.Y < 3 then
-				Y_Vel = Vector3.new(0,0,0)
+				Y_Vel = Vector3.new(0,25.2,0)
 			else
 				Y_Vel = Vector3.new(0,25 + (FakeHum.JumpPower/12.5) + FakeRig.HumanoidRootPart.Velocity.Y/15, 0)
 			end
@@ -864,9 +864,12 @@ for Index, Joint in ipairs(CharacterDescendants) do
 		end	
 	end
 end
+local CurCameraOffset = workspace.CurrentCamera.CFrame
+workspace.CurrentCamera.CFrame = CurCameraOffset
 Player.Character = FakeRig
+workspace.CurrentCamera.CFrame = CurCameraOffset
 workspace.CurrentCamera.CameraSubject = FakeHum
-workspace.CurrentCamera.CFrame = CameraCFrame
+workspace.CurrentCamera.CFrame = CurCameraOffset
 if AreAnimationsDisabled == false then
 	if (RigType == "R15" and R15ToR6 == true) or RigType == "R6" then
 		R6Animate()
