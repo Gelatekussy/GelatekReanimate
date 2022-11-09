@@ -10,11 +10,12 @@ local StarterGui = game:FindFirstChildOfClass("StarterGui")
 local CoreGui = game:FindFirstChildOfClass("CoreGui")
 local Player = Players.LocalPlayer
 local HubMode = Global.HubMode or false
+
 -- [[ Variables ]] --
 local Events = {}
 local BodyVels = {}
 local Root_Offset = 0.02
-local Velocity = Vector3.new(0,0,-25.65)
+local Velocity = Vector3.new(0,0,-25.8)
 local SpawnPoint = workspace:FindFirstChildOfClass("SpawnLocation",true) and workspace:FindFirstChildOfClass("SpawnLocation",true) or CFrame.new(0,20,0)
 
 -- [[ Functions ]] --
@@ -413,6 +414,7 @@ local Humanoid = Character:FindFirstChildWhichIsA("Humanoid")
 local RootPart = Character:WaitForChild("HumanoidRootPart")
 local CharacterDescendants = Character:GetDescendants()
 local CharacterChildren = Character:GetChildren()
+local CameraCFrame = workspace.CurrentCamera.CFrame
 local FakeHats = Instance.new("Folder"); do
 	FakeHats.Name = "FakeHats"
 	FakeHats.Parent = Character
@@ -591,15 +593,15 @@ if DynamicalVelocity == true then
 			Velocity = Vector3.new(FakeRig["HumanoidRootPart"].CFrame.LookVector.X * 85, FakeRig["Head"].Velocity.Y * 4, FakeRig["HumanoidRootPart"].CFrame.LookVector.Z * 85)
 		else
 			if FakeRig.HumanoidRootPart.Velocity.Y > 0 and FakeRig.HumanoidRootPart.Velocity.Y < 3 then
-				Y_Vel =Vector3.new(0,25.2,0)
+				Y_Vel = Vector3.new(0,0,0)
 			else
-				Y_Vel = Vector3.new(0,26.99 + (FakeHum.JumpPower/12.5) + FakeRig.HumanoidRootPart.Velocity.Y/15, 0)
+				Y_Vel = Vector3.new(0,25 + (FakeHum.JumpPower/12.5) + FakeRig.HumanoidRootPart.Velocity.Y/15, 0)
 			end
 
 			if FakeHum.MoveDirection.Magnitude < 0.1 then
 				Velocity = Y_Vel
 			elseif FakeHum.MoveDirection.Magnitude > 0.1 then
-				Velocity = FakeHum.MoveDirection * 26.55 + Y_Vel
+				Velocity = FakeHum.MoveDirection * 55 + Y_Vel
 			end
 		end
 	end))
@@ -864,6 +866,7 @@ for Index, Joint in ipairs(CharacterDescendants) do
 end
 Player.Character = FakeRig
 workspace.CurrentCamera.CameraSubject = FakeHum
+workspace.CurrentCamera.CFrame = CameraCFrame
 if AreAnimationsDisabled == false then
 	if (RigType == "R15" and R15ToR6 == true) or RigType == "R6" then
 		R6Animate()
@@ -875,7 +878,7 @@ if AreAnimationsDisabled == false then
 	end
 end
 if IsLoadLibraryEnabled == true and (not RunService:IsStudio()) then
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Addons/LoadLibrary.lua"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/Gelatekussy/GelatekReanimate/main/Addons/LoadLibrary.lua"))()
 end
 table.insert(Events,FakeHum.Died:Connect(function() 
     Death()
