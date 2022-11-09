@@ -46,7 +46,7 @@ Global.GelatekReanimateConfig = {
         ["LockBulletOnTorso"] = false
     }
 }
-loadstring(game:HttpGet("https://raw.githubusercontent.com/StrokeThePea/GelatekReanimate/main/Main.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/Gelatekussy/GelatekReanimate/main/Main.lua"))()
 ```
 
 
