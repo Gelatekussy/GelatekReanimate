@@ -631,6 +631,9 @@ if IsPermaDeath == true then
 		else
 			Character:FindFirstChild("Head"):Destroy()
 		end
+		if IsHeadless == false and AlignReanimate == true then
+			Align(Character:FindFirstChild("Head"), FakeRig:FindFirstChild("Head"))	
+		end
 		game:GetService("StarterGui"):SetCore("ResetButtonCallback", true)
 		warn("Godmoded in: " .. string.sub(tostring(tick()-Speed),1,string.find(tostring(tick()-Speed),".")+5))
 	end)
