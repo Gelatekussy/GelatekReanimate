@@ -420,6 +420,7 @@ local FakeHats = Instance.new("Folder"); do
 	FakeHats.Parent = Character
 end
 local RigType = Humanoid.RigType.Name
+Global.RealChar = Character
 Character.Archivable = true
 if Character:FindFirstChild("Animate") then -- [[ Disable Animations ]] --
 	Character:FindFirstChild("Animate").Disabled = true
@@ -709,23 +710,24 @@ end))
 
 local function Death()
 	Global.Stopped = true
-    Character.Parent = workspace
-    Player.Character = workspace:FindFirstChild(Character.Name)
-    Humanoid:ChangeState(15)
-    if FakeRig then FakeRig:Destroy() end
-    for i,v in pairs(Events) do
-        v:Disconnect()
-    end
-    for i,v in pairs(Global.TableOfEvents) do
-        v:Disconnect()
-    end
-    if FakeRig then FakeRig:Destroy() end
-    FakeRig = nil
-    task.wait(0.15)
-    if game:FindFirstChildOfClass("TestService"):FindFirstChild("ScriptCheck") then
+	Character.Parent = workspace
+	Player.Character = workspace:FindFirstChild(Character.Name)
+	Humanoid:ChangeState(15)
+	if FakeRig then FakeRig:Destroy() end
+	for i,v in pairs(Events) do
+		v:Disconnect()
+	end
+	for i,v in pairs(Global.TableOfEvents) do
+		v:Disconnect()
+	end
+	if FakeRig then FakeRig:Destroy() end
+	FakeRig = nil
+	task.wait(0.15)
+	if game:FindFirstChildOfClass("TestService"):FindFirstChild("ScriptCheck") then
 		game:FindFirstChildOfClass("TestService"):FindFirstChild("ScriptCheck"):Destroy()
 	end
-    Global.Stopped = false
+	Global.Stopped = false
+	Global.RealChar = nil
 end
 	
 table.insert(Events, ArtificalEvent:Connect(function()
