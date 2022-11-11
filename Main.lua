@@ -569,6 +569,9 @@ do --[[ Bullet/TorsoFling Checking ]]--
 		elseif RigType == "R15" and R15ToR6 == false then
 			CollideFlingInfo = {CollideFlingPart, FakeRig:FindFirstChild("UpperTorso"), CFrame.new()}
 		end
+	else
+		CollideFlingInfo = nil
+		CollideFlingPart = nil
 	end
 	if BulletPartInfo then
 		local Highlight = Instance.new("SelectionBox")
@@ -586,26 +589,6 @@ end
 
 Character:MoveTo(FakeRig.HumanoidRootPart.Position)
 
-if DynamicalVelocity == true then
-	local Y_Vel = Vector3.new(0, 25.2, 0)
-	table.insert(Events, RunService.PreSimulation:Connect(function()
-		if OldVelocityMethod == true then
-			Velocity = Vector3.new(FakeRig["HumanoidRootPart"].CFrame.LookVector.X * 85, FakeRig["Head"].Velocity.Y * 4, FakeRig["HumanoidRootPart"].CFrame.LookVector.Z * 85)
-		else
-			if FakeRig.HumanoidRootPart.Velocity.Y > 0 and FakeRig.HumanoidRootPart.Velocity.Y < 3 then
-				Y_Vel = Vector3.new(0,25.2,0)
-			else
-				Y_Vel = Vector3.new(0,25 + (FakeHum.JumpPower/12.5) + FakeRig.HumanoidRootPart.Velocity.Y/15, 0)
-			end
-
-			if FakeHum.MoveDirection.Magnitude < 0.1 then
-				Velocity = Y_Vel
-			elseif FakeHum.MoveDirection.Magnitude > 0.1 then
-				Velocity = FakeHum.MoveDirection * 55 + Y_Vel
-			end
-		end
-	end))
-end
 local Offsets --[[ Offsets For R15 ]] --
 if RigType == "R15" then
 	Offsets = {
@@ -685,6 +668,7 @@ do -- [[ Boosting Tweaks/Claims ]] --
 				BV.Velocity = Vector3.new(0,0,0)
 				BV.Name = "Stabilition"
 				BV.Parent = v
+				table.insert(BodyVels, BV)
 			end
 			local HG = Instance.new("SelectionBox")
 			HG.Adornee = v
@@ -693,7 +677,6 @@ do -- [[ Boosting Tweaks/Claims ]] --
 			HG.Transparency = 1
 			HG.Color3 = Color3.fromRGB(125,240,125)
 			HG.Parent = v
-			table.insert(BodyVels, BV)
 		end
 	end
 	coroutine.wrap(function() --// Delayless Method; Used for root Y cframing.
@@ -752,7 +735,10 @@ table.insert(Events, ArtificalEvent:Connect(function()
 			FakeRig:MoveTo(SpawnPoint.Position)
 		end
 	end
-	
+	if not CollideFlingInfo then
+		local Torso = Character:FindFirstChild("Torso") or Character:FindFirstChild("UpperTorso")
+		Torso.AssemblyLinearVelocity = Velocity	
+	end
 	for _, v in pairs(BodyVels) do
 		v.Velocity = Velocity
 	end
@@ -760,9 +746,7 @@ table.insert(Events, ArtificalEvent:Connect(function()
 	for _, v in pairs(CharacterDescendants) do -- [[ Main Things ]] --
 		if v:IsA("BasePart") then
 			if v and v.Parent then
-				if CollideFlingPart and v.Name ~= CollideFlingPart.Name then
-					v.AssemblyLinearVelocity = Velocity
-				elseif not CollideFlingPart then
+				if (CollideFlingInfo and v.Name ~= CollideFlingInfo[1].Name) or not CollideFlingInfo then
 					v.AssemblyLinearVelocity = Velocity
 				end
 			end
@@ -771,7 +755,7 @@ table.insert(Events, ArtificalEvent:Connect(function()
 	if AlignReanimate == true and IsTorsoFling == true then
 		CFrameAlign(CollideFlingInfo[1], CollideFlingInfo[2], CollideFlingInfo[3]) 
 	end
-	if IsTorsoFling == true and CollideFlingPart then
+	if IsTorsoFling == true then
 		if RigType == "R6" then
 			if FakeHum.MoveDirection.Magnitude < 0.1 then
 				CollideFlingPart.AssemblyLinearVelocity = Velocity
@@ -786,6 +770,8 @@ table.insert(Events, ArtificalEvent:Connect(function()
 				CollideFlingPart.RotVelocity = Vector3.new(2500,2500,2500)
 			end
 		end
+	else
+
 	end
 	if AlignReanimate == false then
 		for _, v in pairs(CharacterDescendants) do -- [[ Main Things ]] --
@@ -819,6 +805,26 @@ table.insert(Events, ArtificalEvent:Connect(function()
 		CFrameAlign(RootPart, Character:FindFirstChild("UpperTorso") or Character:FindFirstChild("Torso"), CFrame.new(0,Root_Offset,0))
 	end
 end))
+
+if DynamicalVelocity == true then
+	local Y_Vel = Vector3.new(0, 25.15, 0)
+	table.insert(Events, RunService.PreSimulation:Connect(function()
+		if OldVelocityMethod == true then
+			Velocity = Vector3.new(FakeRig["HumanoidRootPart"].CFrame.LookVector.X * 85, FakeRig["Head"].Velocity.Y * 4, FakeRig["HumanoidRootPart"].CFrame.LookVector.Z * 85)
+		else
+			if FakeRig.HumanoidRootPart.Velocity.Y > 0 and FakeRig.HumanoidRootPart.Velocity.Y < 3 then
+				Y_Vel = Vector3.new(0,25.15,0)
+			else
+				Y_Vel = Vector3.new(0,28 + (FakeHum.JumpPower/12.5) + FakeRig.HumanoidRootPart.Velocity.Y/15, 0)
+			end
+			if FakeHum.MoveDirection.Magnitude < 0.1 then
+				Velocity = Y_Vel
+			elseif FakeHum.MoveDirection.Magnitude > 0.1 then
+				Velocity = FakeHum.MoveDirection * 125 + Y_Vel
+			end
+		end
+	end))
+end
 if AlignReanimate == true then
 	for _, v in pairs(CharacterDescendants) do
 		if v:IsA("Accessory") then
@@ -1012,7 +1018,7 @@ if DetailedCredits == true then
 		TextLabel.Position = UDim2.new(0.5, 0, 0.190133557, 0)
 		TextLabel.Size = UDim2.new(1, 0, 0.0285421945, 0)
 		TextLabel.Font = Enum.Font.Arcade
-		TextLabel.Text = "CREDITS (V1.5.2)"
+		TextLabel.Text = "CREDITS (V1.5.5)"
 		TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
 		TextLabel.TextScaled = true
 		TextLabel.TextSize = 14.000
