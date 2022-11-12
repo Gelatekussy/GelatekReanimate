@@ -812,13 +812,13 @@ table.insert(Events, ArtificalEvent:Connect(function()
 end))
 
 if DynamicalVelocity == true then
-	local Y_Vel = Vector3.new(0, 25.25, 0)
+	local Y_Vel = Vector3.new(0, 25.45, 0) -- stability hlfdsajkladfjkladfs
 	table.insert(Events, RunService.PreSimulation:Connect(function()
 		if OldVelocityMethod == true then
 			Velocity = Vector3.new(FakeRig["HumanoidRootPart"].CFrame.LookVector.X * 85, FakeRig["Head"].Velocity.Y * 4, FakeRig["HumanoidRootPart"].CFrame.LookVector.Z * 85)
 		else
 			if FakeRig.HumanoidRootPart.Velocity.Y > 0 and FakeRig.HumanoidRootPart.Velocity.Y < 3 then
-				Y_Vel = Vector3.new(0,25.25,0)
+				Y_Vel = Vector3.new(0,25.45,0)
 			else
 				Y_Vel = Vector3.new(0,28 + (FakeHum.JumpPower/12.5) + FakeRig.HumanoidRootPart.Velocity.Y/15, 0)
 			end
