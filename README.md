@@ -1,3 +1,7 @@
+# Heads up!
+> [!TIP]
+> For people wandering in the dark, my new identity is @xyzkade and my new github is @KadeTheExploiter, if you want to use reanimates, check out [Krypton Reanimate](https://github.com/KadeTheExploiter/Krypton), love you guys!
+
 ![Default](https://user-images.githubusercontent.com/76650942/178831019-819f6dd5-9a22-4d6c-8495-6b4ab1df57af.png)
 
 # Gelatek Reanimate!
