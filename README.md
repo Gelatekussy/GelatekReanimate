@@ -3,19 +3,12 @@
 > For people wandering in the dark, my new identity is @xyzkade and my new github is @KadeTheExploiter, if you want to use reanimates, check out [Krypton Reanimate](https://github.com/KadeTheExploiter/Krypton), love you guys!
 
 ![Default](https://user-images.githubusercontent.com/76650942/178831019-819f6dd5-9a22-4d6c-8495-6b4ab1df57af.png)
+-# repository updated: 21.05.2025
+# Gelatek Reanimation.
+An limb reanimation handler for roblox,
 
-# Gelatek Reanimate!
-This is the one of the best reanimate I ever made, it's stablest and less jittery from my other reanimations! It Has:
-- Better Source Code,
-- Optimized,
-- R6 and R15 Support,
-- R15 To R6,
-- Permament Death
-- Torso Fling
-- Bullet Reanimate
-- Delayless
-- Low Jitter
-
+>[WARNING]
+>This Reanimate no longer functions in modern games, also beware of optimization issues, as I haven't covered much here (Please use Krypton or KryptonLegacy when it comes out)
 # Code:
 ```lua
 local Global = (getgenv and getgenv()) or shared
