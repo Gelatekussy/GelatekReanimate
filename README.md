@@ -5,7 +5,7 @@
 ![Default](https://user-images.githubusercontent.com/76650942/178831019-819f6dd5-9a22-4d6c-8495-6b4ab1df57af.png)
 -# repository updated: 21.05.2025
 # Gelatek Reanimation.
-An limb reanimation handler for roblox,
+An limb reanimation handler for roblox, it's pretty cluttered but heavily customizable, that's about it, yeah :-)
 
 > [!WARNING]
 >This Reanimate no longer functions in modern games, also beware of optimization issues, as I haven't covered much here (Please use Krypton or KryptonLegacy when it comes out)
