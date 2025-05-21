@@ -8,7 +8,7 @@
 An limb reanimation handler for roblox, it's pretty cluttered but heavily customizable, that's about it, yeah :-)
 
 > [!WARNING]
->This Reanimate no longer functions in modern games, also beware of optimization issues, as I haven't covered much here (Please use Krypton or KryptonLegacy when it comes out)
+>This Reanimate no longer functions in modern games, also beware of optimization issues, as I haven't covered much here (Please use Krypton or Wait for an update when it comes out)
 # Code:
 ```lua
 local Global = (getgenv and getgenv()) or shared
