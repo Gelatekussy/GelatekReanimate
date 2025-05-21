@@ -7,7 +7,7 @@
 # Gelatek Reanimation.
 An limb reanimation handler for roblox,
 
->[WARNING]
+> [!WARNING]
 >This Reanimate no longer functions in modern games, also beware of optimization issues, as I haven't covered much here (Please use Krypton or KryptonLegacy when it comes out)
 # Code:
 ```lua
